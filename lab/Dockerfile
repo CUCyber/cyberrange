@@ -20,7 +20,7 @@ RUN cd /src && go build -o flag_twelve
 
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get install -y openssh-server
+RUN apt-get update && apt-get install -y openssh-server zip unzip
 RUN mkdir /var/run/sshd
 RUN echo 'root:abc123***' | chpasswd
 RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
@@ -79,8 +79,11 @@ COPY --from=build-flag-twelve /src/flag_twelve /home/three
 RUN chown three:three /home/three/flag_twelve
 
 
-## Fourth Use
+## Fourth User
 RUN useradd -ms /bin/bash four && echo 'four:newpassword' | chpasswd && echo "flag{13}" | base64 > /home/four/flag_thirteen
+COPY ./flag_fourteen /home/four
+COPY ./flag_fifteen.zip /home/four
+COPY ./flag_sixteen.tar /home/four
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
