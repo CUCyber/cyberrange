@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"syscall"
+    "strconv"
 	"time"
 )
 
@@ -17,6 +18,10 @@ type controller struct {
 	logger        *log.Logger
 	nextRequestID func() string
 	healthy       int64
+}
+
+func currentTime() string {
+	return strconv.FormatInt(time.Now().UnixNano(), 36)
 }
 
 func disableDirList(next http.Handler) http.Handler {
