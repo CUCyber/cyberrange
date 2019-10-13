@@ -70,5 +70,6 @@ func (c *controller) health(w http.ResponseWriter, req *http.Request) {
 var (
 	_ http.Handler = http.HandlerFunc((&controller{}).index)
 	_ http.Handler = http.HandlerFunc((&controller{}).training)
+	_ http.Handler = http.HandlerFunc((&controller{}).scenario)
 	_ http.Handler = http.HandlerFunc((&controller{}).health)
 )
