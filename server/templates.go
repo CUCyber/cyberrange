@@ -30,6 +30,13 @@ var scenarioTemplate = TemplateConfig{
 	templates:   make(map[string]*template.Template),
 }
 
+func checkPath(path []string, err error) []string {
+	if err != nil {
+		panic(err)
+	}
+	return path
+}
+
 func serveTemplatePortal(w http.ResponseWriter, name string) {
 	tmpl, ok := portalTemplate.templates[name]
 	if !ok {
@@ -67,13 +74,6 @@ func serveTemplateTraining(w http.ResponseWriter, name string) {
 	if err := tmpl.ExecuteTemplate(w, "base", nil); err != nil {
 		http.Error(w, http.StatusText(500), 500)
 	}
-}
-
-func checkPath(path []string, err error) []string {
-	if err != nil {
-		panic(err)
-	}
-	return path
 }
 
 func instantiateTemplates() {

@@ -9,15 +9,20 @@ import (
 	"time"
 )
 
-func (c *controller) index(w http.ResponseWriter, req *http.Request) {
-	if strings.HasPrefix(req.URL.Path, "/training") {
-		c.training(w, req)
-		return
-	}
+var routes = []struct {
+	path   string
+	router func(w http.ResponseWriter, req *http.Request)
+}{
+	{"/training", c.training},
+	{"/scenario", c.scenario},
+}
 
-	if strings.HasPrefix(req.URL.Path, "/scenario") {
-		c.scenario(w, req)
-		return
+func (c *controller) index(w http.ResponseWriter, req *http.Request) {
+	for _, route := range routes {
+		if strings.HasPrefix(req.URL.Path, route.path) {
+			route.router(w, req)
+			return
+		}
 	}
 
 	if req.URL.Path != "/" {
@@ -44,22 +49,10 @@ func (c *controller) training(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *controller) scenario(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/scenario")[1:]
+
 	switch req.Method {
 	case "GET":
-		path := strings.TrimPrefix(req.URL.Path, "/scenario")
-		if path == "" {
-			path = "index"
-		} else {
-			path = path[1:]
-		}
-		serveTemplateScenario(w, path+".html")
-	case "POST":
-		path := strings.TrimPrefix(req.URL.Path, "/scenario")
-		if path == "" {
-			path = "index"
-		} else {
-			path = path[1:]
-		}
 		serveTemplateScenario(w, path+".html")
 	default:
 		fmt.Fprintf(w, "Unsupported HTTP option.")

@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"syscall"
-    "strconv"
 	"time"
 )
 
@@ -19,6 +19,8 @@ type controller struct {
 	nextRequestID func() string
 	healthy       int64
 }
+
+var c *controller
 
 func currentTime() string {
 	return strconv.FormatInt(time.Now().UnixNano(), 36)
@@ -72,12 +74,10 @@ func serve(listenAddr string, logPath string) {
 	logger := log.New(writer, "http: ", log.LstdFlags)
 	logger.Printf("Server is starting...")
 
-	c := &controller{logger: logger, nextRequestID: currentTime}
+	c = &controller{logger: logger, nextRequestID: currentTime}
 
 	router := http.NewServeMux()
 	router.HandleFunc("/", c.index)
-	router.HandleFunc("/training", c.training)
-	router.HandleFunc("/scenario", c.scenario)
 	router.HandleFunc("/health", c.health)
 
 	fs := http.FileServer(http.Dir("web/static"))
