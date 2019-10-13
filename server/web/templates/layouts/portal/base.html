@@ -1,0 +1,68 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CU Cyber Range</title>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css'>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bulma-divider@2.0.1/dist/css/bulma-divider.min.css'>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <style>
+        * {
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        
+        .section {
+            padding-bottom: 10px;
+        }
+        
+        .tile {
+            margin: 0% 5% 0% 5%;
+        }
+        
+        .is-divider {
+            margin-top: 0px;
+        }
+    </style>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">CU Cyber Range</h1>
+            <div class="is-divider"></div>
+        </div>
+    </section>
+    <div class="container">
+        <div class="columns has-text-centered">
+            <div class="tile is-ancestor">
+                <div class="tile is-parent">
+                    <div class="tile is-child box">
+                        <p class="title is-4">Training</p>
+                        <p>
+                            {{ block "training-description" . }}{{ end }}
+                            <a class="button" href="/training/introduction">Enter</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="is-divider-vertical"></div>
+                <div class="tile is-parent">
+                    <div class="tile is-child box">
+                        <p class="title is-4">Scenarios</p>
+                        <p>
+                            {{ block "scenario-description" . }}{{ end }}
+                            <a class="button" href="/scenario">Enter</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
+{{ end }}

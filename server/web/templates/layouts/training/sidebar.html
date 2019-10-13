@@ -1,0 +1,67 @@
+{{ define "sidebar" }}
+<style>
+    aside ul li ul {
+        display: none;
+    }
+    
+    aside ul li .parent {
+        float: right;
+    }
+</style>
+<div class="column is-2 is-sidebar-menu is-hidden-mobile">
+    <aside id="sidebar" class="menu">
+        <p class="menu-label">
+            General
+        </p>
+        <ul class="menu-list">
+            <li><a href="/training/introduction">Introduction</a></li>
+        </ul>
+        <p class="menu-label">
+            Labs
+        </p>
+        <ul class="menu-list">
+            <li>
+                <a>Linux <i class="fas fa-sort-down parent"></i></a>
+                <ul>
+                    <li><a href="/training/linux-basics-1">Linux Basics 1</a></li>
+                    <li><a href="/training/linux-basics-2">Linux Basics 2</a></li>
+                    <li><a href="/training/linux-basics-3">Linux Basics 3</a></li>
+                </ul>
+            </li>
+        </ul>
+        <p class="menu-label">
+            Information
+        </p>
+        <ul class="menu-list">
+            <li><a>Rules</a></li>
+        </ul>
+    </aside>
+</div>
+<script>
+    /* Expand the sidebar menu */
+    $('.menu li').on('click', 'a', function(e) {
+        if ($(this).parent().children('ul').length) {
+            e.preventDefault();
+            $(this).addClass('active');
+            $(this).parent().children('ul').slideDown();
+            setTimeout(function() {
+                $.fn.matchHeight._update();
+                $.fn.matchHeight._maintainScroll = true;
+            }, 500);
+        }
+    });
+
+    /* Close the expanded menu */
+    $('.menu li').on('click', 'a.active', function(e) {
+        if ($(this).parent().children('ul').length) {
+            e.preventDefault();
+            $(this).removeClass('active');
+            $(this).parent().children('ul').slideUp();
+            setTimeout(function() {
+                $.fn.matchHeight._update();
+                $.fn.matchHeight._maintainScroll = true;
+            }, 500);
+        }
+    });
+</script>
+{{ end }}

@@ -1,0 +1,177 @@
+.section {
+    padding-top: .5rem;
+}
+
+.is-sidebar-menu {
+    padding: 2.5rem;
+    background: #4a4a4a;
+}
+
+.is-sidebar-menu li a {
+    color: white;
+}
+
+.columns.is-fullheight {
+    height: calc(100vh - ( 3.25rem - .75rem));
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    margin-bottom: 0px;
+}
+
+.columns.is-fullheight .column {
+    overflow-y: auto;
+}
+
+.is-main-content {
+    background: #dbdbdb;
+    margin-top: 12px;
+}
+
+.column.is-2.is-sidebar-menu.is-hidden-mobile {
+    width: 250px;
+}
+
+.navbar-hidden {
+    display: none
+}
+
+.navbar-hidden.is-active {
+    display: block
+}
+
+.button {
+    border: none;
+}
+
+.button.is-active {
+    border: none;
+    box-shadow: none;
+}
+
+.button>.icon {
+    padding-left: 10px;
+}
+
+.button.is-active>.icon {
+    padding-left: 0px;
+}
+
+.fa-play {
+    color: hsl(141, 71%, 48%);
+    padding: 5px;
+    font-size: 25px;
+    background: #4a4a4a;
+
+    transition: .2s;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #949ba2;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.fa-stop {
+    color: hsl(348, 100%, 61%);
+    padding: 5px;
+    font-size: 25px;
+    background: #4a4a4a;
+
+    transition: .2s;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #949ba2;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.fa-sync {
+    color: hsl(48, 100%, 67%);
+    padding: 5px;
+    font-size: 25px;
+    background: #4a4a4a;
+
+    transition: .2s;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #949ba2;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.fa-flag {
+    color: hsl(204, 86%, 53%);
+    padding: 5px;
+    font-size: 25px;
+    background: #4a4a4a;
+
+    transition: .2s;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #949ba2;
+    border-radius: 3px;
+    text-align: center;
+}
+
+
+table {
+  overflow: hidden;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+table * {
+  position: relative;
+}
+table td, table th {
+  padding-left: 8px;
+}
+table td, table th {
+  text-align: left;
+}
+
+@media screen and (max-width: 35.5em) {
+  table {
+    display: block;
+  }
+  table > *, table tr, table td, table th {
+    display: block;
+  }
+  table thead {
+    display: none;
+  }
+  table tbody tr {
+    height: auto;
+    padding: 8px 0;
+  }
+  table tbody tr td {
+    padding-left: 45%;
+    margin-bottom: 12px;
+  }
+  table tbody tr td:last-child {
+    margin-bottom: 0;
+  }
+  table tbody tr td:before {
+    position: absolute;
+    font-weight: 700;
+    width: 40%;
+    left: 10px;
+    top: 0;
+  }
+  table tbody tr td:nth-child(1):before {
+    content: "Code";
+  }
+  table tbody tr td:nth-child(2):before {
+    content: "Stock";
+  }
+  table tbody tr td:nth-child(3):before {
+    content: "Cap";
+  }
+  table tbody tr td:nth-child(4):before {
+    content: "Inch";
+  }
+  table tbody tr td:nth-child(5):before {
+    content: "Box Type";
+  }
+}
