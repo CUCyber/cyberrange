@@ -32,17 +32,17 @@
 </div>
 
 <form>
-    <div class="field is-grouped" style="align-items: center;">
+    <div id="form-field" class="field is-grouped" style="align-items: center;">
         <p class="control">
             <a id="prev" href="/training/introduction"><i class="fas fa-arrow-left"></i></a>
         </p>
         <p class="control">
             <a id="next" href="/training/introduction"><i class="fas fa-arrow-right"></i></a>
         </p>
-        <p class="control is-expanded">
+        <p id="flag-input" class="control is-expanded">
             <input id="flag" name="flag" class="input" type="text" placeholder="Flag">
         </p>
-        <p class="control">
+        <p id="flag-submit" class="control">
             <button type="submit" class="button is-dark">
                 Submit
             </button>
@@ -73,5 +73,21 @@
             $('#next').attr("href", nextLink);
         }
     }
+
+    window.addEventListener("load", function() {
+        /*
+            If no-submission is found, remove the submission
+            items and center the bottom navigation arrows.
+        */
+        if (document.querySelector("#no-submission")){
+            ['#flag-input', '#flag-submit'].forEach(function(item, index){
+                var elem = document.querySelector(item);
+                elem.parentNode.removeChild(elem);
+            });
+
+            var elem = document.querySelector("#form-field")
+            elem.setAttribute("style", "justify-content: center;");
+        }
+    });
 </script>
 {{end}}

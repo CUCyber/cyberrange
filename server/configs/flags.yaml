@@ -1,5 +1,20 @@
 flags:
- introduction: welcome
- linux-basics-1: linux-1
- linux-basics-2: linux-2
- linux-basics-3: linux-3
+ ls: flag
+ cd: flag
+ pwd: flag
+ hierarchy: flag
+ mkdir: flag
+ cat: flag
+ man: flag
+ users: flag
+ whoami: flag
+ su: flag
+ chown: flag
+ sudo: flag
+ exec-files: flag
+ base64: flag
+ pipe: flag
+ echo: flag
+ grep: flag
+ zip: flag
+ tar: flag
