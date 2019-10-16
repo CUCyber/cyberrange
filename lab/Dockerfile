@@ -33,7 +33,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 # Teaching setup
 ## First User
-RUN useradd -ms /home/one one && echo 'one:newpassword' | chpasswd
+RUN useradd -ms /bin/bash one && echo "one:newpassword" | chpasswd
 USER one
 WORKDIR /home/one
 
