@@ -1,0 +1,17 @@
+{{define "title"}}tar{{end}}
+{{define "body"}}
+<h3><a href="https://en.wikipedia.org/wiki/Tar_(computing)">tar</a></h3>
+
+<p>The tar command is very similar to the zip command, in which it allows us to collect many files into a single archive file, referred to as a tarball. Unfortunately, Linux does not come with a untar command, so the tar command is used for both creating the archive and extracting it. To switch between making a tar file and extracting one, we use flags. To learn what each flag does, make sure to take advantage of the man pages. In our case, we simply want to extract the tarball, so we can use:
+<br />
+<br />
+<code>tar -xvf fileName.tar</code>
+<br />
+<br />
+<ul>
+    <li>-x: Extract the tarball</li>
+    <li>-v: Verbose output and show the progress of extraction</li>
+    <li>-f: specify the name of the tar file (fileName.tar)</li>
+</ul>
+</p>
+{{end}}
