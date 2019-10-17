@@ -12,13 +12,13 @@ func TestFull(t *testing.T) {
 				"# Title\n" +
 					"## Subtitle\n" +
 					"`printf`:__**hello** *world*__\n" +
-                    "![AltText](http://url.com)\n" +
-                    "~~**Visit my website**~~: [AltText](http://url.com)"),
+					"![AltText](http://url.com)\n" +
+					"~~**Visit my website**~~: [AltText](http://url.com)"),
 			"<h1>Title</h1>\n" +
 				"<h2>Subtitle</h2>\n" +
 				"<code>printf</code>:<u><strong>hello</strong> <em>world</em></u>\n" +
-                "<img src=\"http://url.com\" alt=\"AltText\" />\n" +
-                "<s><strong>Visit my website</strong></s>: <a href=\"http://url.com\" title=\"\">AltText</a>",
+				"<img src=\"http://url.com\" alt=\"AltText\" />\n" +
+				"<s><strong>Visit my website</strong></s>: <a href=\"http://url.com\" title=\"\">AltText</a>",
 		},
 	}
 
