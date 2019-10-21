@@ -1,0 +1,43 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
+    <style>
+    </style>
+    <div id="login">
+      <div class="login-card">
+        <div class="card-title">
+          <h1>{{template "title"}}</h1>
+        </div>
+        <div class="content">
+          {{if .Error}}
+            <p id="error">{{.Error}}</p>
+          {{end}}
+          <form method="POST" action="#">
+            <input id="username" type="username" name="username" title="username" placeholder="Username" required autofocus>
+            <input id="password" type="password" name="password" title="password" placeholder="Password" required>
+            <div class="level options">
+              <div class="checkbox level-left">
+                <input type="checkbox" id="checkbox" class="regular-checkbox">
+                <label for="checkbox"></label>
+                <span>Remember me</span>
+              </div>
+              <a class="btn btn-link level-right" href="#">Forgot Password?</a>
+            </div>
+            <button type="submit" class="button is-dark btn-primary">Login</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+{{ end }}

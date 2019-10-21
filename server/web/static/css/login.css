@@ -1,0 +1,142 @@
+#login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #F7F7F7;
+}
+
+#login .login-card {
+  background: #fff;
+  width: 24rem;
+  box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.11);
+  margin-bottom: 20rem;
+}
+
+#login .login-card .card-title {
+  background-color: #4a4a4a;
+  padding: 2rem;
+}
+
+#login .login-card .card-title h1 {
+  color: #fff;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#login .login-card .content {
+  padding: 3rem 2.5rem 3rem;
+}
+
+#login .login-card #username,
+#login .login-card #password {
+  display: block;
+  width: 100%;
+  font-size: 1rem;
+  margin-bottom: 1.75rem;
+  padding: 0.25rem 0;
+  border: none;
+  border-bottom: 1px solid #dbdbdb;
+  transition: all .5s;
+}
+
+#login .login-card #username:hover,
+#login .login-card #password:hover {
+  border-color: #7a7a7a;
+}
+
+#login .login-card #username:active,
+#login .login-card #username:focus,
+#login .login-card #password:active,
+#login .login-card #password:focus {
+  border-color: #4a4a4a;
+}
+
+#login .login-card .checkbox {
+  color: #b5b5b5;
+  font-size: 0.8rem;
+}
+
+#login .login-card .checkbox span {
+  margin-left: 0.5rem;
+}
+
+#login .login-card a {
+  font-size: 0.8rem;
+}
+
+#login .login-card .options {
+  color: #b5b5b5;
+  margin-bottom: 1.5rem;
+}
+
+#login .login-card button {
+  cursor: pointer;
+  font-size: 1.2rem;
+  width: 100%;
+  transition: color .5s, border-color .5s;
+  margin-top: 1rem;
+}
+
+#login .login-card button:hover,
+#login .login-card button:focus {
+  color: #1E90FF;
+  border-color: #1E90FF;
+}
+
+#login .login-card button:active {
+  transform: translateY(1px);
+}
+
+#error {
+    color: red;
+    text-align: center;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+label {
+  cursor: pointer;
+}
+
+.regular-checkbox {
+  display: none;
+}
+
+.regular-checkbox+label {
+  background-color: #fafafa;
+  border: 1px solid #dbdbdb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 7px;
+  border-radius: 3px;
+  display: inline-block;
+  position: relative;
+}
+
+.regular-checkbox:checked+label {
+  background-color: #e9ecee;
+}
+
+.regular-checkbox:checked+label:after {
+  content: '\2714';
+  font-size: 11px;
+  position: absolute;
+  top: 0;
+  left: 3px;
+  color: #b5b5b5;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+}
+
+@media screen and (max-width: 35.5em) {
+  #login .login-card {
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0rem;
+  }
+}

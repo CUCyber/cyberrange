@@ -7,12 +7,70 @@ import (
 
 type middleware func(http.Handler) http.Handler
 type middlewares []middleware
+type handlerwrapper func(http.ResponseWriter, *http.Request)
 
 func (mws middlewares) apply(hdlr http.Handler) http.Handler {
 	if len(mws) == 0 {
 		return hdlr
 	}
 	return mws[1:].apply(mws[0](hdlr))
+}
+
+func (c *controller) requiresLogin(hdlr handlerwrapper) handlerwrapper {
+	return func(w http.ResponseWriter, req *http.Request) {
+		session, err := store.Get(req, "auth-cookie")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		user := getUser(session)
+
+		if auth := user.Authenticated; !auth {
+			err = session.Save(req, w)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			http.Redirect(w, req, "/login", http.StatusFound)
+			return
+		}
+
+		hdlr(w, req)
+	}
+}
+
+func (c *controller) requiresAdmin(hdlr handlerwrapper) handlerwrapper {
+	return func(w http.ResponseWriter, req *http.Request) {
+		session, err := store.Get(req, "auth-cookie")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		user := getUser(session)
+
+		if auth := user.Authenticated; !auth {
+			err = session.Save(req, w)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			http.Redirect(w, req, "/login", http.StatusFound)
+			return
+		}
+
+		if admin := user.IsAdmin; !admin {
+			err = session.Save(req, w)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			http.Redirect(w, req, "/home", http.StatusFound)
+		}
+
+		hdlr(w, req)
+	}
 }
 
 func (c *controller) logging(hdlr http.Handler) http.Handler {
@@ -50,9 +108,3 @@ func (c *controller) restore(hdlr http.Handler) http.Handler {
 		hdlr.ServeHTTP(w, req)
 	})
 }
-
-var (
-	_ middleware = (&controller{}).logging
-	_ middleware = (&controller{}).tracing
-	_ middleware = (&controller{}).restore
-)

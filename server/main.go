@@ -13,7 +13,6 @@ func main() {
 		logPath = os.Args[2]
 	}
 
-	parseTrainingFlags()
 	instantiateTemplates()
 	serve(listenAddr, logPath)
 }

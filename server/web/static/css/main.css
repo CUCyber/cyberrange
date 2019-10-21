@@ -7,9 +7,26 @@
     background: #4a4a4a;
 }
 
+.mobile-sidebar {
+    width: 100vw !important;
+}
+
+.is-hidden-content {
+    display: none;
+}
+
 #prev,
 #next {
     color: #4a4a4a;
+}
+
+.navbar-item,
+.navbar-link {
+    padding: 0px;
+}
+
+.navbar-brand {
+    padding-left: 1rem;
 }
 
 .is-sidebar-menu li a {
@@ -17,7 +34,7 @@
 }
 
 .columns.is-fullheight {
-    height: calc(100vh - ( 3.25rem - .75rem));
+    height: calc(100vh - (3.25rem - .75rem));
     display: flex;
     flex-direction: row;
     justify-content: stretch;
@@ -89,3 +106,68 @@
 
 .fa-flag {
     color: hsl(204, 86%, 53%); }
+
+table {
+  overflow: hidden;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+table * {
+  position: relative;
+}
+table td, table th {
+  padding-left: 8px;
+}
+table td, table th {
+  text-align: left;
+}
+
+@media screen and (max-width: 35.5em) {
+  table {
+    display: block;
+  }
+  table > *, table tr, table td, table th {
+    display: block;
+  }
+  table thead {
+    display: none;
+  }
+  table tbody tr {
+    height: auto;
+    padding: 8px 0;
+  }
+  .table td {
+    padding-top: 30px;
+  }
+  table tbody tr td {
+    padding-left: 45%;
+    margin-bottom: 12px;
+  }
+  table tbody tr td:last-child {
+    margin-bottom: 0;
+  }
+  table tbody tr td:before {
+    position: absolute;
+    font-weight: 700;
+    width: 40%;
+    left: 10px;
+    top: 0;
+  }
+  table tbody tr td:nth-child(1):before {
+    content: "Name";
+  }
+  table tbody tr td:nth-child(2):before {
+    content: "Difficulty";
+  }
+  table tbody tr td:nth-child(3):before {
+    content: "User Owns";
+  }
+  table tbody tr td:nth-child(4):before {
+    content: "Root Owns";
+  }
+  table tbody tr td:nth-child(5):before {
+    content: "Actions";
+  }
+}
