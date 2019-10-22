@@ -1,6 +1,10 @@
 package main
 
-import "os"
+import (
+	"cyberrange/db"
+	"cyberrange/server"
+	"os"
+)
 
 func main() {
 	listenAddr := ":5000"
@@ -13,6 +17,8 @@ func main() {
 		logPath = os.Args[2]
 	}
 
-	instantiateTemplates()
-	serve(listenAddr, logPath)
+	db.InitializeDatabase()
+	defer db.CloseDatabase()
+
+	server.Serve(listenAddr, logPath)
 }

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/gob"
@@ -25,8 +25,8 @@ func getUser(s *sessions.Session) User {
 }
 
 func InitializeSessions() {
-	authKey := securecookie.GenerateRandomKey(64)
-	encryptionKey := securecookie.GenerateRandomKey(32)
+	authKey, _ := []byte("ABCDABCDABCDABCD"), securecookie.GenerateRandomKey(64)
+	encryptionKey, _ := []byte("ABCDABCDABCDABCD"), securecookie.GenerateRandomKey(32)
 
 	store = sessions.NewCookieStore(
 		authKey,

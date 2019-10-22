@@ -1,0 +1,38 @@
+{{define "title"}}Machine List{{end}}
+{{define "body"}}
+<div class="box">
+  <div class="table-container">
+    <p>
+      Filter: <input type="search" class="light-table-filter" data-table="order-table" placeholder="Filter">
+    </p>
+    <br />
+    <table class="table order-table is-striped is-hoverable table-container" style="overflow-x: auto;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Difficulty</th>
+          <th>User Owns</th>
+          <th>Root Owns</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range $index, $value := .Machines }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>{{ .Difficulty }}</td>
+          <td>{{ .UserOwns }}</td>
+          <td>{{ .RootOwns }}</td>
+          <td>
+            <a href="/start/{{ .Name }}"><i class="fas fa-play"></i></a>
+            <a href="/stop/{{ .Name }}"><i class="fas fa-stop"></i></a>
+            <a href="/reset/{{ .Name }}"><i class="fas fa-sync"></i></a>
+            <a href="/reset/{{ .Name }}"><i class="fas fa-flag"></i></a>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

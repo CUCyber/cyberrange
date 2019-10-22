@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -64,7 +64,7 @@ func (c *controller) shutdown(ctx context.Context, server *http.Server) context.
 	return ctx
 }
 
-func serve(listenAddr string, logPath string) {
+func Serve(listenAddr string, logPath string) {
 	writer, err := os.Create(logPath)
 	if err != nil {
 		fmt.Printf("Could not create log file at path: %s\n", logPath)
@@ -85,6 +85,7 @@ func serve(listenAddr string, logPath string) {
 	router.Handle("/static/", fs)
 
 	InitializeSessions()
+	InstantiateTemplates()
 
 	server := &http.Server{
 		Addr: listenAddr,

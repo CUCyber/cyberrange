@@ -1,6 +1,7 @@
-package main
+package server
 
 import (
+	"cyberrange/db"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,6 +16,7 @@ var routes = []struct {
 	{"/login", c.login},
 	{"/logout", c.requiresLogin(c.logout)},
 	{"/home", c.requiresLogin(c.home)},
+	{"/machines", c.requiresLogin(c.machines)},
 	{"/admin", c.requiresAdmin((c.admin))},
 }
 
@@ -47,6 +49,33 @@ func (c *controller) index(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/home", http.StatusFound)
 }
 
+func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
+	machines, err := db.GetMachineList()
+	if err != nil {
+		panic(err)
+	}
+
+	data := &TemplateDataContext{
+		Machines: machines,
+		User:     &user,
+	}
+
+	switch req.Method {
+	case "GET":
+		serveTemplate(w, "index.html", data, machinesTemplate)
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
 func (c *controller) home(w http.ResponseWriter, req *http.Request) {
 	session, err := store.Get(req, "auth-cookie")
 	if err != nil {
@@ -54,18 +83,36 @@ func (c *controller) home(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	path := strings.TrimPrefix(req.URL.Path, "/home")
-	if path == "" {
-		path = "index"
-	} else {
-		path = path[1:]
+	user := getUser(session)
+
+	data := &TemplateDataContext{
+		User: &user,
+	}
+
+	switch req.Method {
+	case "GET":
+		serveTemplate(w, "index.html", data, homeTemplate)
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	user := getUser(session)
 
+	data := &TemplateDataContext{
+		User: &user,
+	}
+
 	switch req.Method {
 	case "GET":
-		serveTemplateHome(w, path+".html", user)
+		serveTemplate(w, "index.html", data, adminTemplate)
 	default:
 		fmt.Fprintf(w, "Unsupported HTTP option.")
 	}
@@ -82,10 +129,11 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 	case "POST":
 		err := req.ParseForm()
 		if err != nil {
-			serveTemplateLogin(w, "index.html",
+			serveTemplate(w, "index.html",
 				struct{ Error string }{
 					"Invalid form data.",
 				},
+				loginTemplate,
 			)
 			return
 		}
@@ -95,10 +143,11 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 
 		err = LDAPAuthenticate(username, password)
 		if err != nil {
-			serveTemplateLogin(w, "index.html",
+			serveTemplate(w, "index.html",
 				struct{ Error string }{
 					LDAPError(err),
 				},
+				loginTemplate,
 			)
 			return
 		}
@@ -119,31 +168,7 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 
 		http.Redirect(w, req, "/home", http.StatusSeeOther)
 	default:
-		serveTemplateLogin(w, "index.html", nil)
-	}
-}
-
-func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
-	session, err := store.Get(req, "auth-cookie")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	path := strings.TrimPrefix(req.URL.Path, "/admin")
-	if path == "" {
-		path = "index"
-	} else {
-		path = path[1:]
-	}
-
-	user := getUser(session)
-
-	switch req.Method {
-	case "GET":
-		serveTemplateAdmin(w, path+".html", user)
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
+		serveTemplate(w, "index.html", nil, loginTemplate)
 	}
 }
 

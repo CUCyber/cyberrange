@@ -1,0 +1,38 @@
+{{ define "navbar" }}
+<nav class="navbar">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/home">
+            <img src="/static/images/logo.png" alt="Logo Not Found" width="125">
+        </a>
+        <a role="button" class="navbar-burger is-mobile" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div id="navMenubd-example" class="navbar-menu">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="field is-grouped">
+                    <a class="bd-tw-button button">
+                        <span class="icon">
+                  <i class="fa fa-cog"></i>
+                  </span>
+                        <div class="navbar-hidden">Settings</div>
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-item">
+                <div class="field is-grouped">
+                    <a class="bd-tw-button button" href="/logout">
+                        <span class="icon">
+                  <i class="fas fa-sign-out-alt"></i>
+                  </span>
+                        <div class="navbar-hidden">Logout</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+{{ end }}
