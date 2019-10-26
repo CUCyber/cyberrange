@@ -3,14 +3,14 @@ package db
 import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"github.com/gocraft/dbr/v2"
 	"github.com/spf13/viper"
 )
 
-var db *gorm.DB
+var db *dbr.Session
 
 func CloseDatabase() {
-	db.Close()
+	db.Connection.DB.Close()
 }
 
 func ParseDBOptions() string {
@@ -25,57 +25,62 @@ func ParseDBOptions() string {
 	mysqlOptions := viper.GetStringMap("mysql")
 
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		mysqlOptions["username"], mysqlOptions["password"],
-		mysqlOptions["host"], mysqlOptions["port"], mysqlOptions["db"],
+		mysqlOptions["user"], mysqlOptions["pass"],
+		mysqlOptions["host"], mysqlOptions["port"],
+		mysqlOptions["db"],
 	)
 }
 
 func SeedDatabase() {
-	FirstOrCreateMachine(
+	machine1, err := FindOrCreateMachine(
 		&Machine{
 			Name:       "Ellingson",
+			Flag:       "FlagValue",
 			Difficulty: "Hard",
-			Flag:       "HelloWorld",
+			Points:     30,
 		},
 	)
+	if err != nil {
+		panic(err.Error())
+	}
 
-	FirstOrCreateMachine(
+	machine2, err := FindOrCreateMachine(
 		&Machine{
 			Name:       "Smasher2",
-			Difficulty: "Insane",
 			Flag:       "HelloWorld",
+			Difficulty: "Insane",
+			Points:     50,
 		},
 	)
-
-	for i := 0; i < 30; i++ {
-		UserOwnMachine(&Machine{Name: "Ellingson"})
+	if err != nil {
+		panic(err.Error())
 	}
 
-	for i := 0; i < 24; i++ {
-		RootOwnMachine(&Machine{Name: "Ellingson"})
+	user, err := FindOrCreateUser(
+		&User{
+			Username: "nbulisc",
+		},
+	)
+	if err != nil {
+		panic(err.Error())
 	}
 
-	for i := 0; i < 6; i++ {
-		UserOwnMachine(&Machine{Name: "Smasher2"})
-	}
+	UserOwnMachine(user, machine1)
 
-	for i := 0; i < 4; i++ {
-		RootOwnMachine(&Machine{Name: "Smasher2"})
-	}
+	RootOwnMachine(user, machine1)
+
+	UserOwnMachine(user, machine2)
 }
 
 func InitializeDatabase() {
-	var err error
-
-	connStr := ParseDBOptions()
-
-	db, err = gorm.Open("mysql", connStr)
+	conn, err := dbr.Open("mysql", ParseDBOptions(), nil)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
+	conn.SetMaxOpenConns(10)
 
-	db.DropTableIfExists(&User{}, &Machine{})
-	db.AutoMigrate(&User{}, &Machine{})
+	db = conn.NewSession(nil)
+	db.Begin()
 
 	SeedDatabase()
 }

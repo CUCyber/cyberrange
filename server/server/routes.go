@@ -58,7 +58,7 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 
 	user := getUser(session)
 
-	machines, err := db.GetMachineList()
+	machines, err := db.GetMachines()
 	if err != nil {
 		panic(err)
 	}
