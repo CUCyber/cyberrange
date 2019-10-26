@@ -65,13 +65,18 @@ func GetUserOwns(user_id uint64) (*[]Machine, error) {
 }
 
 func HasSubmittedUser(user *User, machine *Machine) (bool, error) {
-	userOwns, err := GetUserOwns(user.Id)
+    var userOwns []MachineOwn
+
+	_, err := db.Select("machine_id").From("machine_owns").
+		Join("machine_user_owns", "machine_user_owns.own_id = machine_owns.id").
+		Where("machine_owns.user_id = ?", user.Id).
+		Load(&userOwns)
 	if err != nil {
 		return false, err
 	}
 
-	for _, owned := range *userOwns {
-		if machine.Id == owned.Id {
+	for _, owned := range userOwns {
+		if machine.Id == owned.MachineId {
 			return true, nil
 		}
 	}
@@ -80,13 +85,18 @@ func HasSubmittedUser(user *User, machine *Machine) (bool, error) {
 }
 
 func HasSubmittedRoot(user *User, machine *Machine) (bool, error) {
-	rootOwns, err := GetRootOwns(user.Id)
+    var rootOwns []MachineOwn
+
+	_, err := db.Select("machine_id").From("machine_owns").
+		Join("machine_root_owns", "machine_root_owns.own_id = machine_owns.id").
+		Where("machine_owns.user_id = ?", user.Id).
+		Load(&rootOwns)
 	if err != nil {
 		return false, err
 	}
 
-	for _, owned := range *rootOwns {
-		if machine.Id == owned.Id {
+	for _, owned := range rootOwns {
+		if machine.Id == owned.MachineId {
 			return true, nil
 		}
 	}
