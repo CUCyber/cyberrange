@@ -7,4 +7,4 @@
 
 ### Centos 7
 
-`sudo yum install golang mysql`
+`sudo yum install golang mariadb-server`
