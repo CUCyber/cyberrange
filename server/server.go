@@ -88,7 +88,6 @@ func Serve(listenAddr string, logPath string) {
 	InstantiateTemplates()
 
 	server := &http.Server{
-		Addr: listenAddr,
 		Handler: (middlewares{
 			c.tracing,
 			c.logging,
@@ -103,8 +102,13 @@ func Serve(listenAddr string, logPath string) {
 	logger.Printf("Server is ready to handle requests at %q\n", listenAddr)
 	atomic.StoreInt64(&c.healthy, time.Now().UnixNano())
 
-	if err := server.ListenAndServe(); err != http.ErrServerClosed {
-		logger.Fatalf("Could not listen on %q: %s\n", listenAddr, err)
+	l, err := net.Listen("tcp4", listenAddr)
+	if err != nil {
+		logger.Fatalf("Could not listen on p80: %s\n", err)
+	}
+
+	if err := server.Serve(l); err != http.ErrServerClosed {
+		logger.Fatalf("Could not serve on %q: %s\n", listenAddr, err)
 	}
 	<-ctx.Done()
 	logger.Printf("Server stopped\n")
