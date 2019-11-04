@@ -26,12 +26,13 @@ func (c *controller) requiresLogin(hdlr handlerwrapper) handlerwrapper {
 
 		user := getUser(session)
 
-		if auth := user.Authenticated; !auth {
-			err = session.Save(req, w)
+		if auth := user.Authenticated; !auth || user.User == nil {
+			err = destroyUserSession(session, w, req)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+
 			http.Redirect(w, req, "/login", http.StatusFound)
 			return
 		}
@@ -50,7 +51,7 @@ func (c *controller) requiresAdmin(hdlr handlerwrapper) handlerwrapper {
 
 		user := getUser(session)
 
-		if auth := user.Authenticated; !auth {
+		if auth := user.Authenticated; !auth || user.User == nil {
 			err = session.Save(req, w)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)

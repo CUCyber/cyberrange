@@ -1,11 +1,24 @@
 package db
 
-import "github.com/gocraft/dbr/v2"
-
 type User struct {
 	Id       uint64
 	Username string
 	Points   uint64
+	UserOwns uint64
+	RootOwns uint64
+}
+
+func GetRank(user *User) (uint64, error) {
+	var rank uint64
+
+	_, err := db.Select("COUNT(*) AS rank").From("users").
+		Where("points >= (SELECT points FROM users WHERE id = ?)", user.Id).
+		Load(&rank)
+	if err != nil {
+		return 0, err
+	}
+
+	return rank, nil
 }
 
 func Scoreboard() (*[]User, error) {
@@ -44,7 +57,7 @@ func FindUserById(user *User) (*User, error) {
 	}
 
 	if queryUser.Username == "" {
-		return nil, dbr.ErrNotFound
+		return nil, ErrUserNotFound
 	}
 
 	return &queryUser, nil
@@ -61,13 +74,21 @@ func FindUserByUsername(user *User) (*User, error) {
 	}
 
 	if queryUser.Username == "" {
-		return nil, dbr.ErrNotFound
+		return nil, ErrUserNotFound
 	}
 
 	return &queryUser, nil
 }
 
-func FindOrCreateUser(user *User) (*User, error) {
+func CreateUser(user *User) (*User, error) {
+	_, err := db.InsertInto("users").Ignore().
+		Columns("username", "points").
+		Record(user).
+		Exec()
+	if err != nil {
+		return nil, err
+	}
+
 	/*
 	   While insert...returning isn't available, we need
 	   to get the updated user id through a second query
@@ -75,34 +96,29 @@ func FindOrCreateUser(user *User) (*User, error) {
 	   https://mariadb.com/kb/en/library/insertreturning/
 	*/
 
-	queryUser, err := FindUserByUsername(user)
+	user, err = FindUserByUsername(user)
 	if err != nil {
-		/* Unexpected error */
-		if err != dbr.ErrNotFound {
-			return nil, err
-		}
+		return nil, err
+	}
 
-		/* User not found, create user */
-		_, err := db.InsertInto("users").
-			Columns("username", "points").
-			Record(user).
-			Exec()
+	return user, nil
+}
+
+func FindOrCreateUser(user *User) (*User, error) {
+	queryUser, err := FindUserByUsername(user)
+	if err != nil && err != ErrUserNotFound {
+		return nil, err
+	}
+
+	if queryUser == nil {
+		queryUser, err := CreateUser(user)
 		if err != nil {
 			return nil, err
 		}
 
-		/* Get new user data */
-		queryUser, err = FindUserByUsername(user)
-		if err != nil {
-			if err != dbr.ErrNotFound {
-				return nil, err
-			}
-		}
-
-		/* Pre-populate machine owns */
 		err = UserCreateMachineOwns(queryUser.Id)
 		if err != nil {
-			panic(err.Error())
+			return nil, err
 		}
 	}
 

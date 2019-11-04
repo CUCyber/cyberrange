@@ -16,7 +16,10 @@ var routes = []struct {
 	{"/login", c.login},
 	{"/logout", c.requiresLogin(c.logout)},
 	{"/home", c.requiresLogin(c.home)},
+	{"/me", c.requiresLogin(c.me)},
+	{"/users", c.requiresLogin(c.users)},
 	{"/machines", c.requiresLogin(c.machines)},
+	{"/scoreboard", c.requiresLogin(c.scoreboard)},
 	{"/admin", c.requiresAdmin((c.admin))},
 }
 
@@ -36,44 +39,18 @@ func (c *controller) index(w http.ResponseWriter, req *http.Request) {
 
 	user := getUser(session)
 
-	if auth := user.Authenticated; !auth {
-		err = session.Save(req, w)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Redirect(w, req, "/login", http.StatusFound)
-		return
-	}
+    if auth := user.Authenticated; !auth || user.User == nil {
+        err = destroyUserSession(session, w, req)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        http.Redirect(w, req, "/login", http.StatusFound)
+        return
+    }
 
 	http.Redirect(w, req, "/home", http.StatusFound)
-}
-
-func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
-	session, err := store.Get(req, "auth-cookie")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	user := getUser(session)
-
-	machines, err := db.GetMachines()
-	if err != nil {
-		panic(err)
-	}
-
-	data := &TemplateDataContext{
-		Machines: machines,
-		User:     &user,
-	}
-
-	switch req.Method {
-	case "GET":
-		serveTemplate(w, "index.html", data, machinesTemplate)
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
 }
 
 func (c *controller) home(w http.ResponseWriter, req *http.Request) {
@@ -92,6 +69,124 @@ func (c *controller) home(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
 		serveTemplate(w, "index.html", data, homeTemplate)
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
+	switch req.Method {
+	case "GET":
+		machines, err := db.GetMachines()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data := &TemplateDataContext{
+			Machines: machines,
+			User:     &user,
+		}
+
+		serveTemplate(w, "index.html", data, machinesTemplate)
+	case "POST":
+		flag := req.FormValue("flag")
+		name := req.FormValue("machine-name")
+
+		err := db.OwnMachine(flag, name, user.User)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		w.Write([]byte("success"))
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) me(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+	profile := fmt.Sprintf("/users/%d", user.User.Id)
+
+	http.Redirect(w, req, profile, http.StatusFound)
+}
+
+func (c *controller) users(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
+	uid, err := ParseUID(req.URL.Path)
+	if err != nil {
+		http.Redirect(w, req, "/home", http.StatusFound)
+	}
+
+	profile, err := db.FindUserById(&db.User{Id: uid})
+	if err != nil {
+		http.Redirect(w, req, "/home", http.StatusFound)
+	}
+
+	timeline, err := db.GetOwnsTimeline(uid)
+	if err != nil {
+		http.Redirect(w, req, "/home", http.StatusFound)
+	}
+
+	switch req.Method {
+	case "GET":
+		data := &TemplateDataContext{
+			User:         &user,
+			Profile:      profile,
+			OwnsTimeline: timeline,
+		}
+
+		serveTemplate(w, "index.html", data, profileTemplate)
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) scoreboard(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
+	users, err := db.Scoreboard()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := &TemplateDataContext{
+		User:  &user,
+		Users: users,
+	}
+
+	switch req.Method {
+	case "GET":
+		serveTemplate(w, "index.html", data, scoreboardTemplate)
 	default:
 		fmt.Fprintf(w, "Unsupported HTTP option.")
 	}
@@ -119,51 +214,35 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *controller) login(w http.ResponseWriter, req *http.Request) {
-	session, err := store.Get(req, "auth-cookie")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	switch req.Method {
 	case "POST":
 		err := req.ParseForm()
 		if err != nil {
-			serveTemplate(w, "index.html",
-				struct{ Error string }{
-					"Invalid form data.",
-				},
-				loginTemplate,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		username := req.PostFormValue("username")
 		password := req.PostFormValue("password")
 
-		err = LDAPAuthenticate(username, password)
+		err = createUserSession(username, password, w, req)
 		if err != nil {
-			serveTemplate(w, "index.html",
-				struct{ Error string }{
-					LDAPError(err),
-				},
-				loginTemplate,
-			)
-			return
-		}
-
-		user := &User{
-			Username:      username,
-			Authenticated: true,
-			IsAdmin:       LDAPIsAdmin(username),
-		}
-
-		session.Values["user"] = user
-
-		err = session.Save(req, w)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			ldaperr := LDAPError(err)
+			if ldaperr != "" {
+				serveTemplate(w, "index.html",
+					struct{ Error string }{
+						ldaperr,
+					},
+					loginTemplate,
+				)
+			} else {
+				serveTemplate(w, "index.html",
+					struct{ Error string }{
+						"Invalid form data.",
+					},
+					loginTemplate,
+				)
+			}
 		}
 
 		http.Redirect(w, req, "/home", http.StatusSeeOther)
@@ -179,14 +258,12 @@ func (c *controller) logout(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	session.Values["user"] = User{}
-	session.Options.MaxAge = -1
-
-	err = session.Save(req, w)
+	err = destroyUserSession(session, w, req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 

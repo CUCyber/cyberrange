@@ -8,15 +8,18 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
   `points` BIGINT unsigned NOT NULL DEFAULT 0,
+  `user_owns` BIGINT unsigned NOT NULL DEFAULT 0,
+  `root_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `machines` (
   `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
-  `flag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_flag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `root_flag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `difficulty` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `points` INT unsigned NOT NULL DEFAULT 0,
+  `points` BIGINT unsigned NOT NULL DEFAULT 0,
   `user_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   `root_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)

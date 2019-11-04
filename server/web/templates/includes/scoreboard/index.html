@@ -1,0 +1,43 @@
+{{define "content"}}
+<div class="container column is-12">
+  <div class="section">
+    <div class="card">
+      <div class="card-header">
+        <p class="card-header-title">
+          Scoreboard
+        </p>
+      </div>
+      <div class="box">
+        <div class="table-container">
+          <table class="scoreboard table order-table is-striped is-hoverable table-container" style="overflow-x: auto;">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Points</th>
+                <th>User Owns</th>
+                <th>Root Owns</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $index, $value := .Users }}
+              <tr>
+                <td>{{ inc $index }}</td>
+                <td>
+                  <a href="/users/{{ .Id }}">
+                    {{ .Username }}
+                  </a>
+                </td>
+                <td>{{ .Points }}</td>
+                <td>{{ .UserOwns }}</td>
+                <td>{{ .RootOwns }}</td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

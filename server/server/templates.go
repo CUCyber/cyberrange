@@ -15,15 +15,20 @@ type TemplateConfig struct {
 }
 
 type TemplateDataContext struct {
-	User     *User
-	Machines *[]db.Machine
+	User         *User
+	Profile      *db.User
+	Users        *[]db.User
+	Machines     *[]db.Machine
+	OwnsTimeline *[]db.OwnMetadata
 }
 
 var (
-	loginTemplate    = CreateTemplateConfig("login")
-	homeTemplate     = CreateTemplateConfig("home")
-	machinesTemplate = CreateTemplateConfig("machines")
-	adminTemplate    = CreateTemplateConfig("admin")
+	loginTemplate      = CreateTemplateConfig("login", "login")
+	homeTemplate       = CreateTemplateConfig("home", "common")
+	profileTemplate    = CreateTemplateConfig("profile", "common")
+	scoreboardTemplate = CreateTemplateConfig("scoreboard", "common")
+	machinesTemplate   = CreateTemplateConfig("machines", "common")
+	adminTemplate      = CreateTemplateConfig("admin", "common")
 )
 
 func checkPath(path []string, err error) []string {
@@ -33,9 +38,9 @@ func checkPath(path []string, err error) []string {
 	return path
 }
 
-func CreateTemplateConfig(name string) TemplateConfig {
-	layoutPath := fmt.Sprintf("web/templates/layouts/%s/*.html", name)
-	includePath := fmt.Sprintf("web/templates/includes/%s/*.html", name)
+func CreateTemplateConfig(include, layout string) TemplateConfig {
+	layoutPath := fmt.Sprintf("web/templates/layouts/%s/*.html", layout)
+	includePath := fmt.Sprintf("web/templates/includes/%s/*.html", include)
 
 	return TemplateConfig{
 		layoutPath:  checkPath(filepath.Glob(layoutPath)),
@@ -61,6 +66,8 @@ func InstantiateTemplates() {
 	globalTemplates := []TemplateConfig{
 		loginTemplate,
 		homeTemplate,
+		profileTemplate,
+		scoreboardTemplate,
 		adminTemplate,
 		machinesTemplate,
 	}
@@ -68,7 +75,28 @@ func InstantiateTemplates() {
 	for _, tmplCfg := range globalTemplates {
 		for _, tmpl := range tmplCfg.includePath {
 			files := append(tmplCfg.layoutPath, tmpl)
-			tmplCfg.templates[filepath.Base(tmpl)] = template.Must(template.ParseFiles(files...))
+
+			t, err := template.New("").Funcs(template.FuncMap{
+				"inc": func(x int) int {
+					return x + 1
+				},
+				"icon": func(s string) string {
+					switch s {
+					case "user":
+						return "dollar-sign"
+					case "root":
+						return "hashtag"
+					default:
+						return "flag"
+					}
+				},
+				"rank": func(user *db.User) uint64 {
+					rank, _ := db.GetRank(user)
+					return rank
+				},
+			}).ParseFiles(files...)
+
+			tmplCfg.templates[filepath.Base(tmpl)] = template.Must(t, err)
 		}
 	}
 }

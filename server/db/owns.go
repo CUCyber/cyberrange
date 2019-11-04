@@ -1,6 +1,16 @@
 package db
 
-import "time"
+import (
+	"sort"
+	"time"
+)
+
+type OwnMetadata struct {
+	Id       uint64
+	Type     string
+	Name     string
+	SolvedAt time.Time
+}
 
 type MachineRootOwn struct {
 	Id       uint64
@@ -32,125 +42,112 @@ func GetOwns() (*[]MachineOwn, error) {
 	return &owns, nil
 }
 
-func GetRootOwns(user_id uint64) (*[]Machine, error) {
-	var machines []Machine
+func GetOwnsTimeline(user_id uint64) (*[]OwnMetadata, error) {
+	userOwns, err := GetUserOwns(user_id)
+	if err != nil {
+		return nil, err
+	}
 
-	_, err := db.Select("*").From("machines").
+	rootOwns, err := GetRootOwns(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	totalOwns := append(*userOwns, *rootOwns...)
+
+	sort.Slice(totalOwns, func(i, j int) bool {
+		return totalOwns[i].SolvedAt.After(totalOwns[j].SolvedAt)
+	})
+
+	return &totalOwns, nil
+}
+
+func GetRootOwns(user_id uint64) (*[]OwnMetadata, error) {
+	var owns []OwnMetadata
+
+	_, err := db.Select("'root' AS type, name, solved_at").From("machines").
 		Join("machine_owns", "machine_owns.machine_id = machines.id").
 		Join("machine_root_owns", "machine_root_owns.own_id = machine_owns.id").
 		Join("users", "users.id = machine_owns.user_id").
 		Where("users.id = ?", user_id).
-		Load(&machines)
+		Load(&owns)
 	if err != nil {
 		return nil, err
 	}
 
-	return &machines, nil
+	return &owns, nil
 }
 
-func GetUserOwns(user_id uint64) (*[]Machine, error) {
-	var machines []Machine
+func GetUserOwns(user_id uint64) (*[]OwnMetadata, error) {
+	var owns []OwnMetadata
 
-	_, err := db.Select("*").From("machines").
+	_, err := db.Select("'user' AS type, name, solved_at").From("machines").
 		Join("machine_owns", "machine_owns.machine_id = machines.id").
 		Join("machine_user_owns", "machine_user_owns.own_id = machine_owns.id").
 		Join("users", "users.id = machine_owns.user_id").
 		Where("users.id = ?", user_id).
-		Load(&machines)
+		Load(&owns)
 	if err != nil {
 		return nil, err
 	}
 
-	return &machines, nil
+	return &owns, nil
 }
 
-func HasSubmittedUser(user *User, machine *Machine) (bool, error) {
-    var userOwns []MachineOwn
-
-	_, err := db.Select("machine_id").From("machine_owns").
-		Join("machine_user_owns", "machine_user_owns.own_id = machine_owns.id").
-		Where("machine_owns.user_id = ?", user.Id).
-		Load(&userOwns)
-	if err != nil {
-		return false, err
-	}
-
-	for _, owned := range userOwns {
-		if machine.Id == owned.MachineId {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func HasSubmittedRoot(user *User, machine *Machine) (bool, error) {
-    var rootOwns []MachineOwn
+func HasSubmittedRoot(user *User, machine *Machine) error {
+	var rootOwns []MachineOwn
 
 	_, err := db.Select("machine_id").From("machine_owns").
 		Join("machine_root_owns", "machine_root_owns.own_id = machine_owns.id").
 		Where("machine_owns.user_id = ?", user.Id).
 		Load(&rootOwns)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for _, owned := range rootOwns {
 		if machine.Id == owned.MachineId {
-			return true, nil
+			return ErrRootOwned
 		}
 	}
 
-	return false, nil
+	return nil
 }
 
-func UserOwnMachine(user *User, machine *Machine) error {
-	var own MachineOwn
+func HasSubmittedUser(user *User, machine *Machine) error {
+	var userOwns []MachineOwn
 
-	/* User has already submitted a correct user flag */
-	hasSubmitted, err := HasSubmittedUser(user, machine)
-	if hasSubmitted || err != nil {
-		return nil
-	}
-
-	/* Find User-Machine MachineOwn row */
-	_, err = db.Select("*").From("machine_owns").
-		Where("user_id = ? AND machine_id = ?", user.Id, machine.Id).
-		Load(&own)
+	_, err := db.Select("machine_id").From("machine_owns").
+		Join("machine_user_owns", "machine_user_owns.own_id = machine_owns.id").
+		Where("machine_owns.user_id = ?", user.Id).
+		Load(&userOwns)
 	if err != nil {
 		return err
 	}
 
-	/* Update internal machine root counter */
-	_, err = db.Update("machines").
-		Set("user_owns", machine.UserOwns+1).
-		Where("id = ?", machine.Id).
-		Exec()
-	if err != nil {
-		return err
-	}
-
-	/* Create MachineRootOwn record */
-	_, err = db.InsertInto("machine_user_owns").
-		Pair("own_id", own.Id).
-		Exec()
-	if err != nil {
-		return err
+	for _, owned := range userOwns {
+		if machine.Id == owned.MachineId {
+			return ErrUserOwned
+		}
 	}
 
 	return nil
 }
 
 func RootOwnMachine(user *User, machine *Machine) error {
+	var err error
 	var own MachineOwn
 
-	/* User has already submitted a correct root flag */
-	hasSubmitted, err := HasSubmittedRoot(user, machine)
-	if hasSubmitted || err != nil {
-		return nil
+	err = HasSubmittedRoot(user, machine)
+	if err != nil {
+		return err
 	}
 
-	/* Find User-Machine MachineOwn row */
+	user, err = FindUserById(user)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Select("*").From("machine_owns").
 		Where("user_id = ? AND machine_id = ?", user.Id, machine.Id).
 		Load(&own)
@@ -158,7 +155,6 @@ func RootOwnMachine(user *User, machine *Machine) error {
 		return err
 	}
 
-	/* Update internal machine root counter */
 	_, err = db.Update("machines").
 		Set("root_owns", machine.RootOwns+1).
 		Where("id = ?", machine.Id).
@@ -167,9 +163,17 @@ func RootOwnMachine(user *User, machine *Machine) error {
 		return err
 	}
 
-	/* Create MachineRootOwn record */
 	_, err = db.InsertInto("machine_root_owns").
 		Pair("own_id", own.Id).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Update("users").
+		Set("points", user.Points+machine.Points).
+		Set("root_owns", user.RootOwns+1).
+		Where("id = ?", user.Id).
 		Exec()
 	if err != nil {
 		return err
@@ -178,10 +182,82 @@ func RootOwnMachine(user *User, machine *Machine) error {
 	return nil
 }
 
+func UserOwnMachine(user *User, machine *Machine) error {
+	var err error
+	var own MachineOwn
+
+	err = HasSubmittedUser(user, machine)
+	if err != nil {
+		return err
+	}
+
+	user, err = FindUserById(user)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Select("*").From("machine_owns").
+		Where("user_id = ? AND machine_id = ?", user.Id, machine.Id).
+		Load(&own)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Update("machines").
+		Set("user_owns", machine.UserOwns+1).
+		Where("id = ?", machine.Id).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.InsertInto("machine_user_owns").
+		Pair("own_id", own.Id).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Update("users").
+		Set("points", user.Points+machine.Points/2).
+		Set("user_owns", user.UserOwns+1).
+		Where("id = ?", user.Id).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func OwnMachine(flag, machineName string, user *User) error {
+	machine, err := FindMachineByName(&Machine{Name: machineName})
+	if err != nil {
+		return err
+	}
+
+	switch flag {
+	case machine.UserFlag:
+		err = UserOwnMachine(user, machine)
+		if err != nil {
+			return err
+		}
+	case machine.RootFlag:
+		err = RootOwnMachine(user, machine)
+		if err != nil {
+			return err
+		}
+	default:
+		return ErrWrongFlag
+	}
+
+	return nil
+}
+
 func MachineCreateMachineOwns(machine_id uint64) error {
 	users, err := GetUsers()
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	for _, user := range *users {
@@ -200,7 +276,7 @@ func MachineCreateMachineOwns(machine_id uint64) error {
 func UserCreateMachineOwns(user_id uint64) error {
 	machines, err := GetMachines()
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	for _, machine := range *machines {

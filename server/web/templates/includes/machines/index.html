@@ -1,38 +1,75 @@
-{{define "title"}}Machine List{{end}}
-{{define "body"}}
-<div class="box">
-  <div class="table-container">
-    <p>
-      Filter: <input type="search" class="light-table-filter" data-table="order-table" placeholder="Filter">
-    </p>
-    <br />
-    <table class="table order-table is-striped is-hoverable table-container" style="overflow-x: auto;">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Difficulty</th>
-          <th>User Owns</th>
-          <th>Root Owns</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{ range $index, $value := .Machines }}
-        <tr>
-          <td>{{ .Name }}</td>
-          <td>{{ .Difficulty }}</td>
-          <td>{{ .UserOwns }}</td>
-          <td>{{ .RootOwns }}</td>
-          <td>
-            <a href="/start/{{ .Name }}"><i class="fas fa-play"></i></a>
-            <a href="/stop/{{ .Name }}"><i class="fas fa-stop"></i></a>
-            <a href="/reset/{{ .Name }}"><i class="fas fa-sync"></i></a>
-            <a href="/flag/{{ .Name }}"><i class="fas fa-flag"></i></a>
-          </td>
-        </tr>
-        {{end}}
-      </tbody>
-    </table>
+{{define "content"}}
+<div class="container column is-12">
+  <div class="section">
+    <div class="card">
+      <div class="card-header">
+        <p class="card-header-title">
+          Machines
+        </p>
+      </div>
+      <div class="modal flag-submission">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="width: 480px">
+          <div class="box">
+            <form id="flag-form" method="POST">
+              <div class="form-title">$MachineName</div>
+              <label class="label">Flag</label>
+              <div id="form-field" class="field is-grouped" style="align-items: center;">
+                <p id="flag-input" class="control is-expanded has-icons-right">
+                  <input id="flag" name="flag" class="input" type="text" />
+                  <span class="icon is-small is-right">
+                  <i class="circle-loader"></i>
+                  <i id="correct" class="fas fa-check"></i>
+                  <i id="incorrect" class="fas fa-times"></i>
+                  </span>
+                </p>
+                <p id="flag-submit" class="control">
+                  <button type="submit" class="button is-dark">
+                  Submit
+                  </button>
+                </p>
+              </div>
+              <p class="help">Input the the user or root flag hash.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="table-container">
+          <p>
+            Filter: <input type="search" class="light-table-filter" data-table="order-table" placeholder="Filter">
+          </p>
+          <br />
+          <table class="machines table order-table is-striped is-hoverable table-container has-text-centered" style="overflow-x: auto;">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Difficulty</th>
+                <th>User Owns</th>
+                <th>Root Owns</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $index, $value := .Machines }}
+              <tr>
+                <td>{{ .Name }}</td>
+                <td>{{ .Difficulty }}</td>
+                <td>{{ .UserOwns }}&nbsp;<i class="fas fa-dollar-sign"></i></td>
+                <td>{{ .RootOwns }}&nbsp;<i class="fas fa-hashtag m-l-sm"></i></td>
+                <td>
+                  <a href="/start/{{ .Name }}"><i class="fas fa-play"></i></a>
+                  <a href="/stop/{{ .Name }}"><i class="fas fa-stop"></i></a>
+                  <a href="/reset/{{ .Name }}"><i class="fas fa-sync"></i></a>
+                  <a id="submit-flag" onclick="flagModal({{ .Name }})"><i class="fas fa-flag"></i></a>
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {{end}}

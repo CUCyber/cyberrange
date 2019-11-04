@@ -1,13 +1,12 @@
 package db
 
-import "github.com/gocraft/dbr/v2"
-
 type Machine struct {
 	Id         uint64
 	Name       string
-	Flag       string
+	Points     uint64
 	Difficulty string
-	Points     uint
+	UserFlag   string
+	RootFlag   string
 	UserOwns   uint64
 	RootOwns   uint64
 }
@@ -35,7 +34,7 @@ func FindMachineById(machine *Machine) (*Machine, error) {
 	}
 
 	if queryMachine.Name == "" {
-		return nil, dbr.ErrNotFound
+		return nil, ErrMachineNotFound
 	}
 
 	return &queryMachine, nil
@@ -52,48 +51,51 @@ func FindMachineByName(machine *Machine) (*Machine, error) {
 	}
 
 	if queryMachine.Name == "" {
-		return nil, dbr.ErrNotFound
+		return nil, ErrMachineNotFound
 	}
 
 	return &queryMachine, nil
 }
 
-func FindOrCreateMachine(machine *Machine) (*Machine, error) {
+func CreateMachine(machine *Machine) (*Machine, error) {
+	_, err := db.InsertInto("machines").Ignore().
+		Columns("name", "points", "difficulty", "user_flag", "root_flag").
+		Record(machine).
+		Exec()
+	if err != nil {
+		return nil, err
+	}
+
 	/*
 	   While insert...returning isn't available, we need
-	   to get the updated machine id through a second query
+	   to get the updated user id through a second query
 
 	   https://mariadb.com/kb/en/library/insertreturning/
 	*/
 
-	queryMachine, err := FindMachineByName(machine)
+	machine, err = FindMachineByName(machine)
 	if err != nil {
-		/* Unexpected error */
-		if err != dbr.ErrNotFound {
-			return nil, err
-		}
+		return nil, err
+	}
 
-		/* User not found, create user */
-		_, err := db.InsertInto("machines").
-			Columns("name", "flag", "difficulty", "points").
-			Record(machine).
-			Exec()
+	return machine, nil
+}
+
+func FindOrCreateMachine(machine *Machine) (*Machine, error) {
+	queryMachine, err := FindMachineByName(machine)
+	if err != nil && err != ErrMachineNotFound {
+		return nil, err
+	}
+
+	if queryMachine == nil {
+		queryMachine, err := CreateMachine(machine)
 		if err != nil {
 			return nil, err
 		}
 
-		/* Get new user data */
-		queryMachine, err = FindMachineByName(machine)
-		if err != nil {
-			if err != dbr.ErrNotFound {
-				return nil, err
-			}
-		}
-
-		/* Pre-populate machine owns */
 		err = MachineCreateMachineOwns(queryMachine.Id)
 		if err != nil {
-			panic(err.Error())
+			return nil, err
 		}
 	}
 

@@ -1,13 +1,15 @@
 package server
 
 import (
+	"cyberrange/db"
 	"encoding/gob"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
+	"net/http"
 )
 
 type User struct {
-	Username      string
+	User          *db.User
 	Authenticated bool
 	IsAdmin       bool
 }
@@ -22,6 +24,53 @@ func getUser(s *sessions.Session) User {
 		return User{Authenticated: false}
 	}
 	return user
+}
+
+func destroyUserSession(s *sessions.Session, w http.ResponseWriter, req *http.Request) error {
+	s.Values["user"] = User{}
+	s.Options.MaxAge = -1
+
+	err := s.Save(req, w)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createUserSession(username, password string, w http.ResponseWriter, req *http.Request) error {
+	err := LDAPAuthenticate(username, password)
+	if err != nil {
+		return err
+	}
+
+	user, err := db.FindOrCreateUser(
+		&db.User{
+			Username: username,
+			Points:   0,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		return err
+	}
+
+	session.Values["user"] = &User{
+		User:          user,
+		Authenticated: true,
+		IsAdmin:       LDAPIsAdmin(username),
+	}
+
+	err = session.Save(req, w)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func InitializeSessions() {

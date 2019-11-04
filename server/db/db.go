@@ -32,31 +32,35 @@ func ParseDBOptions() string {
 }
 
 func SeedDatabase() {
-	machine1, err := FindOrCreateMachine(
+	var err error
+
+	_, err = FindOrCreateMachine(
 		&Machine{
 			Name:       "Ellingson",
-			Flag:       "FlagValue",
+			Points:     40,
 			Difficulty: "Hard",
-			Points:     30,
+			UserFlag:   "EllingsonUser",
+			RootFlag:   "EllingsonRoot",
 		},
 	)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	machine2, err := FindOrCreateMachine(
+	_, err = FindOrCreateMachine(
 		&Machine{
 			Name:       "Smasher2",
-			Flag:       "HelloWorld",
-			Difficulty: "Insane",
 			Points:     50,
+			Difficulty: "Insane",
+			UserFlag:   "Smasher2User",
+			RootFlag:   "Smasher2Root",
 		},
 	)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	user, err := FindOrCreateUser(
+	_, err = FindOrCreateUser(
 		&User{
 			Username: "nbulisc",
 		},
@@ -64,12 +68,6 @@ func SeedDatabase() {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	UserOwnMachine(user, machine1)
-
-	RootOwnMachine(user, machine1)
-
-	UserOwnMachine(user, machine2)
 }
 
 func InitializeDatabase() {
