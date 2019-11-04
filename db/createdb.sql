@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS cyberrange;
+use cyberrange;
+
 DROP TABLE IF EXISTS `machine_root_owns`;
 DROP TABLE IF EXISTS `machine_user_owns`;
 DROP TABLE IF EXISTS `machine_owns`;
