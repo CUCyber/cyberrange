@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
+  `username` VARCHAR(191) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
   `points` BIGINT unsigned NOT NULL DEFAULT 0,
   `user_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   `root_owns` BIGINT unsigned NOT NULL DEFAULT 0,
@@ -18,10 +18,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `machines` (
   `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
-  `user_flag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `root_flag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `difficulty` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` VARCHAR(191) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
+  `user_flag` VARCHAR(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `root_flag` VARCHAR(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `difficulty` VARCHAR(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `points` BIGINT unsigned NOT NULL DEFAULT 0,
   `user_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   `root_owns` BIGINT unsigned NOT NULL DEFAULT 0,
