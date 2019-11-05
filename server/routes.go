@@ -101,10 +101,6 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 		flag := req.FormValue("flag")
 		name := req.FormValue("machine-name")
 
-		fmt.Println("Name: ", name)
-		fmt.Println("Flag: ", flag)
-		fmt.Println("User: ", user.User)
-
 		err := db.OwnMachine(flag, name, user.User)
 		if err != nil {
 			w.Write([]byte(err.Error()))

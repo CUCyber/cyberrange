@@ -1,6 +1,6 @@
 $("#flag-form").submit(function (e) {
-  event.preventDefault();
-  event.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
   $('#correct').removeClass("is-active");
   $('#incorrect').removeClass("is-active");
@@ -9,9 +9,6 @@ $("#flag-form").submit(function (e) {
 
   data = $(this).serialize();
   data += "&machine-name=" + $('.form-title').text()
-
-  console.log("Sending the following data: ");
-  console.log(data);
 
   $.ajax({
     type: "POST",
@@ -46,8 +43,8 @@ function flagModal(machineName) {
   modal.classList.add('is-active');
 
   ['.modal-background'].forEach(function (e) {
-    modal.querySelector(e).addEventListener('click', function (event) {
-      event.preventDefault();
+    modal.querySelector(e).addEventListener('click', function (e) {
+      e.preventDefault();
       modal.classList.remove('is-active');
     });
   });
