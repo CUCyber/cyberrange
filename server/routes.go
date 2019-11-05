@@ -214,6 +214,18 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *controller) login(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+    if user.Authenticated && user.User != nil {
+        http.Redirect(w, req, "/home", http.StatusSeeOther)
+        return
+    }
+
 	switch req.Method {
 	case "POST":
 		err := req.ParseForm()
