@@ -10,6 +10,9 @@ $("#flag-form").submit(function (e) {
   data = $(this).serialize();
   data += "&machine-name=" + $('.form-title').text()
 
+  console.log("Sending the following data: ");
+  console.log(data);
+
   $.ajax({
     type: "POST",
     url: "/machines",

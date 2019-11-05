@@ -39,16 +39,16 @@ func (c *controller) index(w http.ResponseWriter, req *http.Request) {
 
 	user := getUser(session)
 
-    if auth := user.Authenticated; !auth || user.User == nil {
-        err = destroyUserSession(session, w, req)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
+	if auth := user.Authenticated; !auth || user.User == nil {
+		err = destroyUserSession(session, w, req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-        http.Redirect(w, req, "/login", http.StatusFound)
-        return
-    }
+		http.Redirect(w, req, "/login", http.StatusFound)
+		return
+	}
 
 	http.Redirect(w, req, "/home", http.StatusFound)
 }
@@ -100,6 +100,10 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 	case "POST":
 		flag := req.FormValue("flag")
 		name := req.FormValue("machine-name")
+
+		fmt.Println("Name: ", name)
+		fmt.Println("Flag: ", flag)
+		fmt.Println("User: ", user.User)
 
 		err := db.OwnMachine(flag, name, user.User)
 		if err != nil {
@@ -221,10 +225,10 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	user := getUser(session)
-    if user.Authenticated && user.User != nil {
-        http.Redirect(w, req, "/home", http.StatusSeeOther)
-        return
-    }
+	if user.Authenticated && user.User != nil {
+		http.Redirect(w, req, "/home", http.StatusSeeOther)
+		return
+	}
 
 	switch req.Method {
 	case "POST":
