@@ -38,15 +38,15 @@ func destroyUserSession(s *sessions.Session, w http.ResponseWriter, req *http.Re
 	return nil
 }
 
-func createUserSession(username, password string, w http.ResponseWriter, req *http.Request) error {
-	err := LDAPAuthenticate(username, password)
+func createUserSession(data *LoginFormData, w http.ResponseWriter, req *http.Request) error {
+	err := LDAPAuthenticate(data.Username, data.Password)
 	if err != nil {
 		return err
 	}
 
 	user, err := db.FindOrCreateUser(
 		&db.User{
-			Username: username,
+			Username: data.Username,
 			Points:   0,
 		},
 	)
@@ -62,7 +62,7 @@ func createUserSession(username, password string, w http.ResponseWriter, req *ht
 	session.Values["user"] = &User{
 		User:          user,
 		Authenticated: true,
-		IsAdmin:       LDAPIsAdmin(username),
+		IsAdmin:       LDAPIsAdmin(data.Username),
 	}
 
 	err = session.Save(req, w)

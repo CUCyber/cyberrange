@@ -9,7 +9,10 @@ type Machine struct {
 	RootFlag   string
 	UserOwns   uint64
 	RootOwns   uint64
+	IpAddress  string
 }
+
+var MachineDifficulty = [...]string{"Easy", "Medium", "Hard", "Insane"}
 
 func GetMachines() (*[]Machine, error) {
 	var machines []Machine
@@ -59,7 +62,7 @@ func FindMachineByName(machine *Machine) (*Machine, error) {
 
 func CreateMachine(machine *Machine) (*Machine, error) {
 	_, err := db.InsertInto("machines").Ignore().
-		Columns("name", "points", "difficulty", "user_flag", "root_flag").
+		Columns("name", "points", "difficulty", "user_flag", "root_flag", "ip_address").
 		Record(machine).
 		Exec()
 	if err != nil {

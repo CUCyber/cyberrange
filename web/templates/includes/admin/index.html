@@ -7,11 +7,61 @@
           Admin Panel
         </p>
       </div>
+      <div class="modal machine-submission">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="width: 480px">
+          <div class="box" style="text-align: center">
+            <div class="modal-title">Response</div>
+            <div id="machine-form-response" class="modal-status"></div>
+          </div>
+        </div>
+      </div>
       <div class="card-content">
         <div class="content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dui ligula, eleifend non mi quis, pharetra faucibus nulla. Aenean vel diam eget augue consequat interdum. Suspendisse cursus condimentum congue. Vivamus id ipsum quis risus convallis aliquam. Cras aliquet ipsum est, id consectetur libero sodales sit amet. Sed vitae massa quis tellus elementum viverra. Nulla metus ipsum, venenatis a pharetra cursus, rutrum in diam. Vestibulum eget turpis eget nisi varius molestie. Sed vel diam sed felis viverra faucibus id sed neque. Ut sit amet ex id nisi vulputate ultricies tempor vel tellus. Suspendisse ullamcorper, ex ut molestie eleifend, mi sem feugiat justo, vel viverra massa orci eget dolor.</p>
-          <p>Nulla at metus ligula. Pellentesque ultrices orci a enim aliquet ultricies. Nam aliquet dui sit amet orci gravida consequat a non tellus. Praesent interdum feugiat convallis. Pellentesque congue, augue eget consequat venenatis, tortor lacus pulvinar eros, vitae luctus nunc nunc at leo. Integer malesuada purus sem, sed commodo mi feugiat quis. Duis rutrum velit nec semper maximus. Donec convallis eros vitae blandit ornare. Sed dignissim, ipsum scelerisque tincidunt facilisis, lacus ex dapibus lacus, ultrices tempus enim turpis eu ipsum. Sed at lorem eu ligula sollicitudin varius. Integer porttitor placerat condimentum.</p>
-          <p>Nam eu vulputate lorem, vitae imperdiet nunc. Aenean blandit pellentesque velit, at placerat risus tristique id. Sed non sagittis felis. Ut vestibulum, ante consequat iaculis mattis, tortor tellus pharetra quam, id molestie tellus dui non justo. Morbi accumsan metus in erat suscipit, at malesuada risus consectetur. Curabitur faucibus commodo dolor non mattis. Proin facilisis arcu ac nunc laoreet sollicitudin. Sed ultricies pellentesque velit, in viverra leo sagittis nec. Duis sed est turpis.</p>
+          <form id="machine-form" method="POST">
+            <div class="field">
+              <label class="label">Machine Name</label>
+              <div class="control">
+                <input id="name" name="name" class="input" type="text" placeholder="Machine Name">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Points</label>
+              <div class="control">
+                <input id="points" name="points" class="input" type="text" placeholder="Points">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Difficulty</label>
+              <div class="control">
+                <div class="select">
+                  <select id="difficulty" name="difficulty">
+                    <option>Easy</option>
+                    <option>Medium</option>
+                    <option>Hard</option>
+                    <option>Insane</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">User Flag</label>
+              <div class="control">
+                <input id="userflag" name="userflag" class="input" type="text" placeholder="User Flag">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Root Flag</label>
+              <div class="control">
+                <input id="rootflag" name="rootflag" class="input" type="text" placeholder="Root Flag">
+              </div>
+            </div>
+            <div class="field is-grouped">
+              <div class="control">
+                <button class="button is-link">Submit</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

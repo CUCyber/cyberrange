@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `machines` (
   `points` BIGINT unsigned NOT NULL DEFAULT 0,
   `user_owns` BIGINT unsigned NOT NULL DEFAULT 0,
   `root_owns` BIGINT unsigned NOT NULL DEFAULT 0,
+  `ip_address` VARCHAR(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

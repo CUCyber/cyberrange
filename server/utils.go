@@ -7,8 +7,17 @@ import (
 )
 
 var (
+	ErrConvFailed  = errors.New("cyberrange: failed to convert type")
 	ErrMatchFailed = errors.New("cyberrange: failed to match string")
 )
+
+func ConvUint(val string) (uint64, error) {
+	i, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		return 0, ErrConvFailed
+	}
+	return i, nil
+}
 
 func ParseUID(path string) (uint64, error) {
 	var err error

@@ -206,10 +206,27 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	switch req.Method {
-	case "GET":
-		serveTemplate(w, "index.html", data, adminTemplate)
+	case "POST":
+		err := req.ParseForm()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data, err := MachineForm(req)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		_, err = db.FindOrCreateMachine(data)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		w.Write([]byte("success"))
 	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
+		serveTemplate(w, "index.html", data, adminTemplate)
 	}
 }
 
@@ -234,23 +251,24 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		username := req.PostFormValue("username")
-		password := req.PostFormValue("password")
+		data, err := LoginForm(req)
+		if err != nil {
+			serveTemplate(w, "index.html",
+				struct{ Error string }{
+					"Invalid form data.",
+				},
+				loginTemplate,
+			)
+			return
+		}
 
-		err = createUserSession(username, password, w, req)
+		err = createUserSession(data, w, req)
 		if err != nil {
 			ldaperr := LDAPError(err)
 			if ldaperr != "" {
 				serveTemplate(w, "index.html",
 					struct{ Error string }{
 						ldaperr,
-					},
-					loginTemplate,
-				)
-			} else {
-				serveTemplate(w, "index.html",
-					struct{ Error string }{
-						"Invalid form data.",
 					},
 					loginTemplate,
 				)
