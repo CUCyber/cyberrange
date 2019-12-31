@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-    "github.com/CUCyber/cyberrange/services/manager/git"
-	"github.com/CUCyber/cyberrange/services/manager/ovirt"
 	"github.com/CUCyber/cyberrange/pkg/proto"
+	"github.com/CUCyber/cyberrange/services/manager/git"
+	"github.com/CUCyber/cyberrange/services/manager/ovirt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"

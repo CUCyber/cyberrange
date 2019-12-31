@@ -1,8 +1,8 @@
 package ovirt
 
 import (
-	"github.com/CUCyber/cyberrange/pkg/proto"
 	"errors"
+	"github.com/CUCyber/cyberrange/pkg/proto"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 	"github.com/spf13/viper"
 	"strings"

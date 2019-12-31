@@ -1,8 +1,8 @@
 package server
 
 import (
-    "github.com/CUCyber/cyberrange/services/webserver/db"
 	"fmt"
+	"github.com/CUCyber/cyberrange/services/webserver/db"
 	"net/http"
 	"strings"
 	"sync/atomic"

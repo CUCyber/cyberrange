@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/CUCyber/cyberrange/services/webserver/db"
 	"fmt"
+	"github.com/CUCyber/cyberrange/services/webserver/db"
 	"html/template"
 	"net/http"
 	"path/filepath"
