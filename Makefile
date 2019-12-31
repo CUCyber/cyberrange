@@ -1,6 +1,6 @@
 webserver:
-	go run services/webserver/main.go
+	cd services/webserver/ && go run main.go
 
 manager:
-	go run services/manager/main.go
+	cd services/manager/ && go run main.go
 
