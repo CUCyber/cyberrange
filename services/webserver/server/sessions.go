@@ -1,7 +1,7 @@
 package server
 
 import (
-	"cyberrange/db"
+	"github.com/CUCyber/cyberrange/services/webserver/db"
 	"encoding/gob"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"

@@ -1,0 +1,5 @@
+ovirt:
+  apiurl: "https://architect.lab.cucyber.net/ovirt-engine/api"
+  user: ""
+  pass: ""
+  prefix: "CyberRange-"

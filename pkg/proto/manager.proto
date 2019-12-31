@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package proto;
+
+message Machine {
+  string name = 1;
+  string ip = 2;
+}
+
+message MachineList {
+  repeated Machine machines = 1;
+}
+
+message Response {
+  bool result = 1;
+}
+
+message Empty {
+
+}
+
+service Manager {
+  rpc Create(Machine) returns (Response);
+  rpc Start(Machine) returns (Response);
+  rpc Stop(Machine) returns (Response);
+  rpc Restart(Machine) returns (Response);
+  rpc Snapshot(Machine) returns (Response);
+  rpc Revert(Machine) returns (Response);
+  rpc List(Empty) returns (MachineList);
+}

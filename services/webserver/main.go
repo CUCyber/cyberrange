@@ -1,8 +1,8 @@
 package main
 
 import (
-	"cyberrange/db"
-	"cyberrange/server"
+	"github.com/CUCyber/cyberrange/services/webserver/db"
+	"github.com/CUCyber/cyberrange/services/webserver/server"
 	"os"
 )
 
