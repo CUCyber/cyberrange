@@ -1,8 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/CUCyber/cyberrange v0.0.0-20191231222149-7c974e996b43 h1:c/p9qse7evgqISwaiFnKsUgEWG3cmolvCuBct7VMjEE=
-github.com/CUCyber/cyberrange v0.0.0-20191231222149-7c974e996b43/go.mod h1:NkTMUsJ9cW8FKAMEEwe3JwirJ5Yr2LML3QAXET63sD8=
+github.com/cucyber/cyberrange v0.0.0-20191231222149-7c974e996b43 h1:c/p9qse7evgqISwaiFnKsUgEWG3cmolvCuBct7VMjEE=
+github.com/cucyber/cyberrange v0.0.0-20191231222149-7c974e996b43/go.mod h1:NkTMUsJ9cW8FKAMEEwe3JwirJ5Yr2LML3QAXET63sD8=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 h1:uSoVVbwJiQipAclBbw+8quDsfcvFjOpI5iCf4p/cqCs=

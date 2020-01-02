@@ -2,7 +2,7 @@ package ovirt
 
 import (
 	"errors"
-	"github.com/CUCyber/cyberrange/pkg/proto"
+	"github.com/cucyber/cyberrange/pkg/proto"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 	"github.com/spf13/viper"
 	"strings"
