@@ -2,7 +2,7 @@ package server
 
 import (
 	"errors"
-	"github.com/CUCyber/cyberrange/services/webserver/db"
+	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
 )
 

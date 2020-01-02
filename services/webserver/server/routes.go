@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CUCyber/cyberrange/services/webserver/db"
+	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
 	"strings"
 	"sync/atomic"

@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/CUCyber/cyberrange/services/webserver/db"
+	"github.com/cucyber/cyberrange/services/webserver/db"
 	"html/template"
 	"net/http"
 	"path/filepath"
