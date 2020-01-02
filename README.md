@@ -17,3 +17,9 @@ There are two services, `webserver` and `manager`. Webserver deploys a website w
 1. `git clone https://github.com/CUCyber/cyberrange.git`
 2. Update the configuration information in `services/manager/git/config.yaml` and `services/manager/ovirt/config.yaml`.
 3. `make manager`
+
+## Development
+
+1. `git clone https://github.com/CUCyber/cyberrange.git`
+2. Append `replace github.com/CUCyber/cyberrange => ../cyberrange` to go.mod.
+3. Make your changes, remove the added go.mod entry, and submit a PR.

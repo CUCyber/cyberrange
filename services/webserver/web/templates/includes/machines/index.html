@@ -40,10 +40,11 @@
             Filter: <input type="search" class="light-table-filter" data-table="order-table" placeholder="Filter">
           </p>
           <br />
-          <table class="machines table order-table is-striped is-hoverable table-container has-text-centered" style="overflow-x: auto;">
+          <table id="machines-table" class="machines table order-table is-striped is-hoverable table-container has-text-centered" style="overflow-x: auto;">
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Address</th>
                 <th>Difficulty</th>
                 <th>User Owns</th>
                 <th>Root Owns</th>
@@ -53,10 +54,11 @@
             <tbody>
               {{ range $index, $value := .Machines }}
               <tr>
-                <td>{{ .Name }}</td>
-                <td>{{ .Difficulty }}</td>
-                <td>{{ .UserOwns }}&nbsp;<i class="fas fa-dollar-sign"></i></td>
-                <td>{{ .RootOwns }}&nbsp;<i class="fas fa-hashtag m-l-sm"></i></td>
+                <td id="machine-name">{{ .Name }}</td>
+                <td id="machine-ip">{{ .IpAddress }}</td>
+                <td id="machine-difficulty">{{ .Difficulty }}</td>
+                <td id="machine-userowns">{{ .UserOwns }}&nbsp;<i class="fas fa-dollar-sign"></i></td>
+                <td id="machine-rootowns">{{ .RootOwns }}&nbsp;<i class="fas fa-hashtag m-l-sm"></i></td>
                 <td>
                   <a href="/start/{{ .Name }}"><i class="fas fa-play"></i></a>
                   <a href="/stop/{{ .Name }}"><i class="fas fa-stop"></i></a>

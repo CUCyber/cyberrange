@@ -16,7 +16,6 @@ $("#flag-form").submit(function (e) {
     data: data,
     success: function (response) {
       setTimeout(function () {
-        console.log(response);
         if (response == "success") {
           $('.circle-loader').removeClass('is-active');
           $('#correct').addClass('is-active');

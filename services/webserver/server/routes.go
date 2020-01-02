@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/CUCyber/cyberrange/services/webserver/db"
 	"net/http"
@@ -19,6 +20,7 @@ var routes = []struct {
 	{"/me", c.requiresLogin(c.me)},
 	{"/users", c.requiresLogin(c.users)},
 	{"/machines", c.requiresLogin(c.machines)},
+	{"/list", c.requiresLogin(c.list)},
 	{"/scoreboard", c.requiresLogin(c.scoreboard)},
 	{"/admin", c.requiresAdmin((c.admin))},
 }
@@ -108,6 +110,25 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 		}
 
 		w.Write([]byte("success"))
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) list(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		machines, err := db.GetMachines()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		js, err := json.Marshal(machines)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(js)
 	default:
 		fmt.Fprintf(w, "Unsupported HTTP option.")
 	}

@@ -1,15 +1,15 @@
 package db
 
 type Machine struct {
-	Id         uint64
-	Name       string
-	Points     uint64
-	Difficulty string
-	UserFlag   string
-	RootFlag   string
-	UserOwns   uint64
-	RootOwns   uint64
-	IpAddress  string
+	Id         uint64 `json:"-"`
+	Name       string `json:"Name"`
+	Points     uint64 `json:"-"`
+	Difficulty string `json:"Difficulty"`
+	UserFlag   string `json:"-"`
+	RootFlag   string `json:"-"`
+	UserOwns   uint64 `json:"UserOwns"`
+	RootOwns   uint64 `json:"RootOwns"`
+	IpAddress  string `json:"IpAddress"`
 }
 
 var MachineDifficulty = [...]string{"Easy", "Medium", "Hard", "Insane"}
