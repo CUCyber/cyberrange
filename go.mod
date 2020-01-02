@@ -3,7 +3,7 @@ module github.com/cucyber/cyberrange
 go 1.13
 
 require (
-	github.com/CUCyber/cyberrange v0.0.0-20191231222149-7c974e996b43
+	github.com/cucyber/cyberrange v0.0.0-20191231222149-7c974e996b43
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gocraft/dbr/v2 v2.6.4-0.20191027011622-3f07b54eb971
 	github.com/golang/protobuf v1.3.1
