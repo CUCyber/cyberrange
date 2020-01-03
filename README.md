@@ -21,5 +21,5 @@ There are two services, `webserver` and `manager`. Webserver deploys a website w
 ## Development
 
 1. `git clone https://github.com/CUCyber/cyberrange.git`
-2. Append `replace github.com/CUCyber/cyberrange => ../cyberrange` to go.mod.
-3. Make your changes, remove the added go.mod entry, and submit a PR.
+2. Make your changes
+3. Submit a PR
