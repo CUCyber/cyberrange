@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/cucyber/cyberrange/pkg/proto"
 	"github.com/cucyber/cyberrange/services/manager/git"
 	"github.com/cucyber/cyberrange/services/manager/ovirt"
@@ -46,13 +47,13 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 	}
 
 	/* Wait for VM to deploy ansible playbook */
-	err = WaitForStateByName(MachineName, ovirtsdk4.VMSTATUS_UP)
+	err = ovirt.WaitForStateByName(MachineName, ovirt.VM_UP)
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
 
 	/* Setup VM */
-	cmd := exec.Command("ansible-playbook",
+	cmd = exec.Command("ansible-playbook",
 		PlaybookPath+"setup/playbook.yml")
 
 	err = cmd.Start()
