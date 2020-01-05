@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrUserNotFound    = errors.New("cyberrange: user not found")
 	ErrMachineNotFound = errors.New("cyberrange: machine not found")
+	ErrMachineExists   = errors.New("cyberrange: machine already exists")
 )
 
 var (

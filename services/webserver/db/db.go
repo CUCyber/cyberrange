@@ -31,45 +31,6 @@ func ParseDBOptions() string {
 	)
 }
 
-func SeedDatabase() {
-	var err error
-
-	_, err = FindOrCreateMachine(
-		&Machine{
-			Name:       "Ellingson",
-			Points:     40,
-			Difficulty: "Hard",
-			UserFlag:   "EllingsonUser",
-			RootFlag:   "EllingsonRoot",
-		},
-	)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	_, err = FindOrCreateMachine(
-		&Machine{
-			Name:       "Smasher2",
-			Points:     50,
-			Difficulty: "Insane",
-			UserFlag:   "Smasher2User",
-			RootFlag:   "Smasher2Root",
-		},
-	)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	_, err = FindOrCreateUser(
-		&User{
-			Username: "nbulisc",
-		},
-	)
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
 func InitializeDatabase() {
 	conn, err := dbr.Open("mysql", ParseDBOptions(), nil)
 	if err != nil {
@@ -79,6 +40,4 @@ func InitializeDatabase() {
 
 	db = conn.NewSession(nil)
 	db.Begin()
-
-	SeedDatabase()
 }

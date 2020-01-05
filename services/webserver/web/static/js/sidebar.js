@@ -4,8 +4,10 @@ $('.menu li').on('click', 'a', function (e) {
     $(this).addClass('active');
     $(this).parent().children('ul').slideDown();
     setTimeout(function () {
-      $.fn.matchHeight._update();
-      $.fn.matchHeight._maintainScroll = true;
+      if ($.fn.matchHeight) {
+        $.fn.matchHeight._update();
+        $.fn.matchHeight._maintainScroll = true;
+      }
     }, 500);
   }
 });
@@ -17,8 +19,10 @@ $('.menu li').on('click', 'a.active', function (e) {
     $(this).removeClass('active');
     $(this).parent().children('ul').slideUp();
     setTimeout(function () {
-      $.fn.matchHeight._update();
-      $.fn.matchHeight._maintainScroll = true;
+      if ($.fn.matchHeight) {
+        $.fn.matchHeight._update();
+        $.fn.matchHeight._maintainScroll = true;
+      }
     }, 500);
   }
 });

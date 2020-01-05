@@ -67,10 +67,10 @@ func WaitForState(vmId string, target ovirtsdk4.VmStatus) error {
 	return nil
 }
 
-func GetVMServiceByName(MachineName string) (*ovirtsdk4.VmService, error) {
+func GetVMIdByName(MachineName string) (string, error) {
 	vmsService := ovirt.SystemService().VmsService()
 
-	vmsResp, err := vmsService.List().Search("name=" + MachineName).Send()
+	vmsResp, err := vmsService.List().Search("name=" + prefix + MachineName).Send()
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +89,29 @@ func GetVMServiceByName(MachineName string) (*ovirtsdk4.VmService, error) {
 	vmId, ok := vm.Id()
 	if !ok {
 		return nil, ErrGetAttribute
+	}
+
+	return vmId, nil
+}
+
+func WaitForStateByName(MachineName string, target ovirtsdk4.VmStatus) error {
+	vmId, err := GetVMIdByName(MachineName)
+	if err != nil {
+		return err
+	}
+
+	err = WaitForState(vmId, target)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetVMServiceByName(MachineName string) (*ovirtsdk4.VmService, error) {
+	vmId, err := GetVMIdByName(MachineName)
+	if err != nil {
+		return nil, err
 	}
 
 	return vmsService.VmService(vmId), nil
@@ -137,11 +160,9 @@ func RestartMachine(MachineName string) error {
 }
 
 func SnapshotMachine(MachineName string) error {
-	MachineName = prefix + MachineName
-
 	vmsService := ovirt.SystemService().VmsService()
 
-	vmsResp, err := vmsService.List().Search("name=" + MachineName).Send()
+	vmsResp, err := vmsService.List().Search("name=" + prefix + MachineName).Send()
 	if err != nil {
 		return err
 	}
@@ -178,11 +199,9 @@ func SnapshotMachine(MachineName string) error {
 }
 
 func RevertMachine(MachineName string) error {
-	MachineName = prefix + MachineName
-
 	vmsService := ovirt.SystemService().VmsService()
 
-	vmsResp, err := vmsService.List().Search("name=" + MachineName).Send()
+	vmsResp, err := vmsService.List().Search("name=" + prefix + MachineName).Send()
 	if err != nil {
 		return err
 	}
@@ -328,6 +347,11 @@ func ListMachines() (*proto.MachineList, error) {
 			}
 		}
 
+		status, ok := vm.Status()
+		if !ok || status != ovirtsdk4.VMSTATUS_UP {
+			ipv4Address = ""
+		}
+
 		vmName = strings.TrimPrefix(vmName, prefix)
 		machines = append(machines, &proto.Machine{Name: vmName, Ip: ipv4Address})
 	}
@@ -357,10 +381,18 @@ func Connect() (*ovirtsdk4.Connection, error) {
 	return ovirt, nil
 }
 
-func InitializeOVirt() {
-	conn, err := Connect()
-	if err != nil {
-		panic(err.Error())
+func RefreshConnection() {
+	for {
+		conn, err := Connect()
+		if err != nil {
+			panic(err.Error())
+		}
+		ovirt = conn
+
+		time.Sleep(60 * time.Minute)
 	}
-	ovirt = conn
+}
+
+func InitializeOVirt() {
+	go RefreshConnection()
 }

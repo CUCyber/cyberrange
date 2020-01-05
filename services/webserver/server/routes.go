@@ -20,6 +20,9 @@ var routes = []struct {
 	{"/me", c.requiresLogin(c.me)},
 	{"/users", c.requiresLogin(c.users)},
 	{"/machines", c.requiresLogin(c.machines)},
+	{"/start", c.requiresLogin(c.start)},
+	{"/stop", c.requiresLogin(c.stop)},
+	{"/revert", c.requiresLogin(c.revert)},
 	{"/list", c.requiresLogin(c.list)},
 	{"/scoreboard", c.requiresLogin(c.scoreboard)},
 	{"/admin", c.requiresAdmin((c.admin))},
@@ -134,6 +137,75 @@ func (c *controller) list(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (c *controller) start(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "POST":
+		name := req.FormValue("machine-name")
+		machine := &db.Machine{Name: name}
+
+		exists, err := db.MachineExists(machine)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		} else if exists == false {
+			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			return
+		}
+
+		go StartMachine(machine)
+
+		w.Write([]byte("success"))
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) stop(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "POST":
+		name := req.FormValue("machine-name")
+		machine := &db.Machine{Name: name}
+
+		exists, err := db.MachineExists(machine)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		} else if exists == false {
+			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			return
+		}
+
+		go StopMachine(machine)
+
+		w.Write([]byte("success"))
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
+func (c *controller) revert(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "POST":
+		name := req.FormValue("machine-name")
+		machine := &db.Machine{Name: name}
+
+		exists, err := db.MachineExists(machine)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		} else if exists == false {
+			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			return
+		}
+
+		go RevertMachine(machine)
+
+		w.Write([]byte("success"))
+	default:
+		fmt.Fprintf(w, "Unsupported HTTP option.")
+	}
+}
+
 func (c *controller) me(w http.ResponseWriter, req *http.Request) {
 	session, err := store.Get(req, "auth-cookie")
 	if err != nil {
@@ -235,6 +307,27 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 		}
 
 		data, err := MachineForm(req)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		exists, err := db.MachineExists(data)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		} else if exists {
+			w.Write([]byte(db.ErrMachineExists.Error()))
+			return
+		}
+
+		err = CreateMachine(data)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		err = SnapshotMachine(data)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			return

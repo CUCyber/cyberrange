@@ -20,5 +20,10 @@ func main() {
 	db.InitializeDatabase()
 	defer db.CloseDatabase()
 
+	server.InitializeManager()
+	defer server.CloseManager()
+
+	go server.UpdateMachines()
+
 	server.Serve(listenAddr, logPath)
 }

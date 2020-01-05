@@ -14,6 +14,10 @@ import (
 
 type server struct{}
 
+var (
+	ErrNoMachinePlaybook = errors.New("cyberrange: no machine playbook")
+)
+
 func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Response, error) {
 	MachineName := req.GetName()
 	PlaybookPath := git.PlaybooksPath + "/machines/" + MachineName
@@ -24,10 +28,32 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 	}
 
 	if _, err = os.Stat(PlaybookPath); os.IsNotExist(err) {
+		return &proto.Response{Result: false}, ErrNoMachinePlaybook
+	}
+
+	/* Provision VM */
+	cmd := exec.Command("ansible-playbook",
+		PlaybookPath+"provision/provision_vm.yml")
+
+	err = cmd.Start()
+	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
 
-	cmd := exec.Command("ansible-playbook", PlaybookPath+"/provision_vm.yml")
+	err = cmd.Wait()
+	if err != nil {
+		return &proto.Response{Result: false}, err
+	}
+
+	/* Wait for VM to deploy ansible playbook */
+	err = WaitForStateByName(MachineName, ovirtsdk4.VMSTATUS_UP)
+	if err != nil {
+		return &proto.Response{Result: false}, err
+	}
+
+	/* Setup VM */
+	cmd := exec.Command("ansible-playbook",
+		PlaybookPath+"setup/playbook.yml")
 
 	err = cmd.Start()
 	if err != nil {

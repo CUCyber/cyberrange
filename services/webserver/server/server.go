@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -68,8 +67,7 @@ func (c *controller) shutdown(ctx context.Context, server *http.Server) context.
 func Serve(listenAddr string, logPath string) {
 	writer, err := os.Create(logPath)
 	if err != nil {
-		fmt.Printf("Could not create log file at path: %s\n", logPath)
-		return
+		panic(err.Error())
 	}
 
 	logger := log.New(writer, "http: ", log.LstdFlags)

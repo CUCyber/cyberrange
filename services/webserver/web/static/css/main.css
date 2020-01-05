@@ -16,8 +16,8 @@
 }
 
 .disabled {
-    color: gray !important;
-    text-decoration: line-through;
+  color: gray !important;
+  text-decoration: line-through;
 }
 
 #prev,
@@ -215,7 +215,66 @@ table * {
   display: block;
 }
 
-@media screen and (max-width: 35.5em) {
+#notification {
+  visibility: visible;
+  position: absolute;
+  max-width: 20rem;
+  z-index: 1;
+  top: 4rem;
+  right: .5rem;
+}
+
+#notification.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    right: 0rem;
+    opacity: 0;
+  }
+  to {
+    right: .5rem;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    right: 0rem;
+    opacity: 0;
+  }
+  to {
+    right: .5rem;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    right: .5rem;
+    opacity: 1;
+  }
+  to {
+    right: 0rem;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    right: .5rem;
+    opacity: 1;
+  }
+  to {
+    right: 0rem;
+    opacity: 0;
+  }
+}
+
+@media screen and (max-width: 992px) {
   table {
     display: block;
   }
@@ -242,11 +301,9 @@ table * {
   table tbody tr td:last-child {
     margin-bottom: 0;
   }
-
   table.profile tbody tr td {
     padding-top: 1.5rem;
   }
-
   table.profile tbody tr td:before,
   table.machines tbody tr td:before,
   table.scoreboard tbody tr td:before {
@@ -256,30 +313,30 @@ table * {
     left: 10px;
     top: 0;
   }
-
   .table th:not([align]),
   .table td:not([align]),
   .content table th:not([align]),
   .content table td:not([align]) {
     text-align: left;
   }
-
   table.machines tbody tr td:nth-child(1):before {
     content: "Name";
   }
   table.machines tbody tr td:nth-child(2):before {
-    content: "Difficulty";
+    content: "Address";
   }
   table.machines tbody tr td:nth-child(3):before {
-    content: "User Owns";
+    content: "Difficulty";
   }
   table.machines tbody tr td:nth-child(4):before {
-    content: "Root Owns";
+    content: "User Owns";
   }
   table.machines tbody tr td:nth-child(5):before {
+    content: "Root Owns";
+  }
+  table.machines tbody tr td:nth-child(6):before {
     content: "Actions";
   }
-
   table.scoreboard tbody tr td:nth-child(1):before {
     content: "Rank";
   }
@@ -295,7 +352,6 @@ table * {
   table.scoreboard tbody tr td:nth-child(5):before {
     content: "Root Owns";
   }
-
   table.profile tbody tr td:nth-child(1):before {
     content: "Rank";
   }
@@ -309,3 +365,5 @@ table * {
     content: "Root Owns";
   }
 }
+
+

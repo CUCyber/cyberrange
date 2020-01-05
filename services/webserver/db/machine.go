@@ -26,6 +26,29 @@ func GetMachines() (*[]Machine, error) {
 	return &machines, nil
 }
 
+func SetMachineIp(machine *Machine) error {
+	_, err := db.Update("machines").
+		Set("ip_address", machine.IpAddress).
+		Where("name = ?", machine.Name).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MachineExists(machine *Machine) (bool, error) {
+	_, err := FindMachineByName(machine)
+	if err != nil {
+		if err == ErrMachineNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func FindMachineById(machine *Machine) (*Machine, error) {
 	var queryMachine Machine
 

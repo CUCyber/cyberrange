@@ -54,16 +54,16 @@
             <tbody>
               {{ range $index, $value := .Machines }}
               <tr>
-                <td id="machine-name">{{ .Name }}</td>
-                <td id="machine-ip">{{ .IpAddress }}</td>
-                <td id="machine-difficulty">{{ .Difficulty }}</td>
-                <td id="machine-userowns">{{ .UserOwns }}&nbsp;<i class="fas fa-dollar-sign"></i></td>
-                <td id="machine-rootowns">{{ .RootOwns }}&nbsp;<i class="fas fa-hashtag m-l-sm"></i></td>
+                <td data-val="name">{{ .Name }}</td>
+                <td data-val="ip">{{ .IpAddress }}</td>
+                <td data-val="difficulty">{{ .Difficulty }}</td>
+                <td data-val="userowns">{{ .UserOwns }}&nbsp;<i class="fas fa-dollar-sign"></i></td>
+                <td data-val="rootowns">{{ .RootOwns }}&nbsp;<i class="fas fa-hashtag m-l-sm"></i></td>
                 <td>
-                  <a href="/start/{{ .Name }}"><i class="fas fa-play"></i></a>
-                  <a href="/stop/{{ .Name }}"><i class="fas fa-stop"></i></a>
-                  <a href="/reset/{{ .Name }}"><i class="fas fa-sync"></i></a>
-                  <a id="submit-flag" onclick="flagModal({{ .Name }})"><i class="fas fa-flag"></i></a>
+                  <a data-val="start" data-name="{{ .Name }}"><i class="fas fa-play"></i></a>
+                  <a data-val="stop" data-name="{{ .Name }}"><i class="fas fa-stop"></i></a>
+                  <a data-val="revert" data-name="{{ .Name }}"><i class="fas fa-sync"></i></a>
+                  <a data-val="submit-flag" onclick="flagModal({{ .Name }})"><i class="fas fa-flag"></i></a>
                 </td>
               </tr>
               {{end}}
