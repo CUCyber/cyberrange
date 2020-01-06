@@ -40,6 +40,7 @@ func PullPlaybooks() error {
 			Username: user,
 			Password: token,
 		},
+		Force: true,
 	})
 	if err != nil && err != git.NoErrAlreadyUpToDate {
 		return err

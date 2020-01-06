@@ -13,11 +13,7 @@ var ovirt *ovirtsdk4.Connection
 var prefix string
 
 var (
-	VM_UP   = ovirtsdk4.VMSTATUS_UP
-	VM_DOWN = ovirtsdk4.VMSTATUS_DOWN
-)
-
-var (
+	ErrDeployFailed    = errors.New("cyberrange: failed to deploy machine")
 	ErrMachineNotFound = errors.New("cyberrange: machine not found")
 	ErrGetAttribute    = errors.New("cyberrange: failed to get object attribute")
 	ErrNoSnapshots     = errors.New("cyberrange: the VM has no saved snapshots")
@@ -99,18 +95,33 @@ func GetVMIdByName(MachineName string) (string, error) {
 	return vmId, nil
 }
 
-func WaitForStateByName(MachineName string, target ovirtsdk4.VmStatus) error {
+func WaitForIPByName(MachineName string) (string, error) {
 	vmId, err := GetVMIdByName(MachineName)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	err = WaitForState(vmId, target)
+	err = WaitForState(vmId, ovirtsdk4.VMSTATUS_UP)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	for {
+		list, err := ListMachines()
+		if err != nil {
+			return "", err
+		}
+
+		for _, v := range list.Machines {
+			if v.Name == MachineName && v.Ip != "" {
+				return v.Ip, nil
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return "", ErrDeployFailed
 }
 
 func GetVMServiceByName(MachineName string) (*ovirtsdk4.VmService, error) {
@@ -265,7 +276,7 @@ func RevertMachine(MachineName string) error {
 			return err
 		}
 
-		err = WaitForState(vmId, VM_DOWN)
+		err = WaitForState(vmId, ovirtsdk4.VMSTATUS_DOWN)
 		if err != nil {
 			return err
 		}
@@ -275,7 +286,7 @@ func RevertMachine(MachineName string) error {
 			return err
 		}
 
-		err = WaitForState(vmId, VM_DOWN)
+		err = WaitForState(vmId, ovirtsdk4.VMSTATUS_DOWN)
 		if err != nil {
 			return err
 		}
@@ -285,7 +296,7 @@ func RevertMachine(MachineName string) error {
 			return err
 		}
 
-		err = WaitForState(vmId, VM_UP)
+		err = WaitForState(vmId, ovirtsdk4.VMSTATUS_UP)
 		if err != nil {
 			return err
 		}
@@ -355,7 +366,7 @@ func ListMachines() (*proto.MachineList, error) {
 		}
 
 		status, ok := vm.Status()
-		if !ok || status != VM_UP {
+		if !ok || status != ovirtsdk4.VMSTATUS_UP {
 			ipv4Address = ""
 		}
 

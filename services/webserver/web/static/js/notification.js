@@ -29,4 +29,6 @@ function spawnNotification(type, body) {
       div.parentNode.removeChild(div);
     }
   }, 3000);
+
+  console.log(body);
 }

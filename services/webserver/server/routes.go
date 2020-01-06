@@ -321,6 +321,8 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		w.Write([]byte("success"))
+
 		err = CreateMachine(data)
 		if err != nil {
 			w.Write([]byte(err.Error()))
@@ -337,8 +339,6 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-
-		w.Write([]byte("success"))
 	default:
 		serveTemplate(w, "index.html", data, adminTemplate)
 	}

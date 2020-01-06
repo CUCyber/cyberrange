@@ -32,36 +32,32 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 		return &proto.Response{Result: false}, ErrNoMachinePlaybook
 	}
 
-	/* Provision VM */
-	cmd := exec.Command("ansible-playbook",
-		PlaybookPath+"provision/provision_vm.yml")
-
-	err = cmd.Start()
+	prov_cmd := exec.Command("ansible-playbook",
+		PlaybookPath+"/provision/provision_vm.yml")
+	err = prov_cmd.Start()
+	if err != nil {
+		return &proto.Response{Result: false}, err
+	}
+	err = prov_cmd.Wait()
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
 
-	err = cmd.Wait()
+	ip, err := ovirt.WaitForIPByName(MachineName)
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
 
-	/* Wait for VM to deploy ansible playbook */
-	err = ovirt.WaitForStateByName(MachineName, ovirt.VM_UP)
+	setup_cmd := exec.Command("ansible-playbook",
+		"-i", ip+`,`,
+		`--private-key`, `/home/cucyber/.ssh/id_rsa`,
+		PlaybookPath+`/setup/playbook.yaml`,
+	)
+	err = setup_cmd.Start()
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
-
-	/* Setup VM */
-	cmd = exec.Command("ansible-playbook",
-		PlaybookPath+"setup/playbook.yml")
-
-	err = cmd.Start()
-	if err != nil {
-		return &proto.Response{Result: false}, err
-	}
-
-	err = cmd.Wait()
+	err = setup_cmd.Wait()
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
