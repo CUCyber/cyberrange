@@ -10,9 +10,11 @@ $("#machine-form").submit(function (e) {
     type: "POST",
     url: "/admin",
     data: data,
-    timeout: 10 * 60 * 1000,
+    timeout: 10 * 1000,
     success: function (response) {
+      console.log(response);
       setTimeout(function () {
+        console.log(response);
         if (response == "success") {
           spawnNotification("success", "Machine Deployment Started.");
         } else {

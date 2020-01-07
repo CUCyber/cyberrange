@@ -20,11 +20,26 @@ func ListMachines() ([]*proto.Machine, error) {
 	defer cancel()
 
 	response, err := client.List(ctx, &proto.Empty{})
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: ListMachines: %+v", err)
 		return nil, err
 	}
 
 	return response.Machines, nil
+}
+
+func CheckCreateMachine(machine *db.Machine) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	req := &proto.Machine{Name: machine.Name}
+	_, err := client.CheckCreate(ctx, req)
+	if err != nil {
+		c.logger.Printf("ERROR: CheckCreateMachine: %+v", err)
+		return err
+	}
+
+	return nil
 }
 
 func CreateMachine(machine *db.Machine) error {
@@ -33,7 +48,8 @@ func CreateMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Create(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: CreateMachine: %+v", err)
 		return err
 	}
 
@@ -46,7 +62,8 @@ func StartMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Start(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: StartMachine: %+v", err)
 		return err
 	}
 
@@ -59,7 +76,8 @@ func StopMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Stop(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: StopMachine: %+v", err)
 		return err
 	}
 
@@ -72,7 +90,8 @@ func SnapshotMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Snapshot(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: SnapshotMachine: %+v", err)
 		return err
 	}
 
@@ -85,7 +104,8 @@ func RestartMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Restart(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: RestartMachine: %+v", err)
 		return err
 	}
 
@@ -98,7 +118,8 @@ func RevertMachine(machine *db.Machine) error {
 
 	req := &proto.Machine{Name: machine.Name}
 	_, err := client.Revert(ctx, req)
-	if err != nil && ctx.Err() != context.Canceled {
+	if err != nil {
+		c.logger.Printf("ERROR: RevertMachine: %+v", err)
 		return err
 	}
 
@@ -109,7 +130,7 @@ func UpdateMachines() {
 	for {
 		machines, err := ListMachines()
 		if err != nil {
-			panic(err.Error())
+			continue
 		}
 
 		for _, v := range machines {

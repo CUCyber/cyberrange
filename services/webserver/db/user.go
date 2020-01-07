@@ -111,7 +111,7 @@ func FindOrCreateUser(user *User) (*User, error) {
 	}
 
 	if queryUser == nil {
-		queryUser, err := CreateUser(user)
+		queryUser, err = CreateUser(user)
 		if err != nil {
 			return nil, err
 		}

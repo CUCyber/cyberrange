@@ -114,7 +114,7 @@ func FindOrCreateMachine(machine *Machine) (*Machine, error) {
 	}
 
 	if queryMachine == nil {
-		queryMachine, err := CreateMachine(machine)
+		queryMachine, err = CreateMachine(machine)
 		if err != nil {
 			return nil, err
 		}

@@ -23,6 +23,9 @@ func main() {
 	server.InitializeManager()
 	defer server.CloseManager()
 
+	server.InitializeSessions()
+	server.InstantiateTemplates()
+
 	go server.UpdateMachines()
 
 	server.Serve(listenAddr, logPath)

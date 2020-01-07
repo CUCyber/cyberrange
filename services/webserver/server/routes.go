@@ -321,23 +321,27 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		err = CheckCreateMachine(data)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+
 		w.Write([]byte("success"))
 
 		err = CreateMachine(data)
 		if err != nil {
-			w.Write([]byte(err.Error()))
 			return
 		}
 
 		err = SnapshotMachine(data)
 		if err != nil {
-			w.Write([]byte(err.Error()))
 			return
 		}
 
 		_, err = db.FindOrCreateMachine(data)
 		if err != nil {
-			panic(err.Error())
+			return
 		}
 	default:
 		serveTemplate(w, "index.html", data, adminTemplate)

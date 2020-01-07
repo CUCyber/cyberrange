@@ -83,9 +83,6 @@ func Serve(listenAddr string, logPath string) {
 	fs = http.StripPrefix("/static/", disableDirList(fs))
 	router.Handle("/static/", fs)
 
-	InitializeSessions()
-	InstantiateTemplates()
-
 	server := &http.Server{
 		Handler: (middlewares{
 			c.tracing,

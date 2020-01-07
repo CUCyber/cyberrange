@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/cucyber/cyberrange/pkg/proto"
 	"github.com/cucyber/cyberrange/services/manager/git"
 	"github.com/cucyber/cyberrange/services/manager/ovirt"
@@ -16,12 +17,16 @@ import (
 type server struct{}
 
 var (
-	ErrNoMachinePlaybook = errors.New("cyberrange: no machine playbook")
+	ErrNoMachinePath      = errors.New("cyberrange: no machine playbook path")
+	ErrNoMachineSetup     = errors.New("cyberrange: no machine playbook setup")
+	ErrNoMachineProvision = errors.New("cyberrange: no machine playbook provision")
 )
 
-func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Response, error) {
+func (s *server) CheckCreate(ctx context.Context, req *proto.Machine) (*proto.Response, error) {
 	MachineName := req.GetName()
 	PlaybookPath := git.PlaybooksPath + "/machines/" + MachineName
+	SetupConfig := PlaybookPath + "/setup/playbook.yaml"
+	ProvisionConfig := PlaybookPath + "/provision/provision_vm.yml"
 
 	err := git.PullPlaybooks()
 	if err != nil {
@@ -29,15 +34,33 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 	}
 
 	if _, err = os.Stat(PlaybookPath); os.IsNotExist(err) {
-		return &proto.Response{Result: false}, ErrNoMachinePlaybook
+		return &proto.Response{Result: false}, ErrNoMachinePath
 	}
 
-	prov_cmd := exec.Command("ansible-playbook",
-		PlaybookPath+"/provision/provision_vm.yml")
-	err = prov_cmd.Start()
+	if _, err = os.Stat(SetupConfig); os.IsNotExist(err) {
+		return &proto.Response{Result: false}, ErrNoMachineSetup
+	}
+
+	if _, err = os.Stat(ProvisionConfig); os.IsNotExist(err) {
+		return &proto.Response{Result: false}, ErrNoMachineProvision
+	}
+
+	return &proto.Response{Result: true}, nil
+}
+
+func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Response, error) {
+	MachineName := req.GetName()
+	PlaybookPath := git.PlaybooksPath + "/machines/" + MachineName
+	SetupConfig := PlaybookPath + "/setup/playbook.yaml"
+	ProvisionConfig := PlaybookPath + "/provision/provision_vm.yml"
+
+	prov_cmd := exec.Command("ansible-playbook", ProvisionConfig)
+
+	err := prov_cmd.Start()
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
+
 	err = prov_cmd.Wait()
 	if err != nil {
 		return &proto.Response{Result: false}, err
@@ -51,12 +74,16 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 	setup_cmd := exec.Command("ansible-playbook",
 		"-i", ip+`,`,
 		`--private-key`, `/home/cucyber/.ssh/id_rsa`,
-		PlaybookPath+`/setup/playbook.yaml`,
+		SetupConfig,
 	)
+
+	setup_cmd.Env = append(os.Environ(), "ANSIBLE_HOST_KEY_CHECKING=False")
+
 	err = setup_cmd.Start()
 	if err != nil {
 		return &proto.Response{Result: false}, err
 	}
+
 	err = setup_cmd.Wait()
 	if err != nil {
 		return &proto.Response{Result: false}, err

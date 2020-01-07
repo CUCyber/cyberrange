@@ -48,7 +48,8 @@ func LDAPIsAdmin(username string) bool {
 		&tls.Config{InsecureSkipVerify: true},
 	)
 	if err != nil {
-		panic(err)
+		c.logger.Printf("ERROR: LDAP Dial: %+v", err)
+		return false
 	}
 	defer l.Close()
 
@@ -62,7 +63,7 @@ func LDAPIsAdmin(username string) bool {
 
 	sr, err := l.Search(searchRequest)
 	if err != nil {
-		panic(err)
+		return false
 	}
 
 	for _, entry := range sr.Entries {
@@ -84,7 +85,8 @@ func LDAPAuthenticateDirectBind(username, password string) error {
 		&tls.Config{InsecureSkipVerify: true},
 	)
 	if err != nil {
-		panic(err)
+		c.logger.Printf("ERROR: LDAP Dial: %+v", err)
+		return err
 	}
 	defer l.Close()
 

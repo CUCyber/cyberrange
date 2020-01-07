@@ -61,7 +61,7 @@ func (c *controller) requiresAdmin(hdlr handlerwrapper) handlerwrapper {
 			return
 		}
 
-		if admin := user.IsAdmin; !admin {
+		if admin := user.IsAdmin; !admin || user.User == nil {
 			err = session.Save(req, w)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,7 +102,7 @@ func (c *controller) restore(hdlr http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				c.logger.Printf("panic: %+v", err)
+				c.logger.Printf("ERROR: %+v", err)
 				http.Error(w, http.StatusText(500), 500)
 			}
 		}()

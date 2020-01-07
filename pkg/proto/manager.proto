@@ -20,6 +20,7 @@ message Empty {
 }
 
 service Manager {
+  rpc CheckCreate(Machine) returns (Response);
   rpc Create(Machine) returns (Response);
   rpc Start(Machine) returns (Response);
   rpc Stop(Machine) returns (Response);
