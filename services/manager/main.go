@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/cucyber/cyberrange/pkg/proto"
 	"github.com/cucyber/cyberrange/services/manager/git"
 	"github.com/cucyber/cyberrange/services/manager/ovirt"
