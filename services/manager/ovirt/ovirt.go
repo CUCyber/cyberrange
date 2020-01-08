@@ -374,7 +374,7 @@ func ListMachines() (*proto.MachineList, error) {
 		machines = append(machines, &proto.Machine{
 			Name:   vmName,
 			Ip:     ipv4Address,
-			Status: status,
+			Status: string(status),
 		})
 	}
 
