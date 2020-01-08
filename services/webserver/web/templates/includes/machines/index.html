@@ -8,6 +8,33 @@
         </p>
       </div>
     </div>
+    <div class="modal flag-submission">
+      <div class="modal-background"></div>
+      <div class="modal-content" style="width: 480px">
+        <div class="box">
+          <form id="flag-form" method="POST">
+            <div class="form-title">$MachineName</div>
+            <label class="label">Flag</label>
+            <div id="form-field" class="field is-grouped" style="align-items: center;">
+              <p id="flag-input" class="control is-expanded has-icons-right">
+                <input id="flag" name="flag" class="input" type="text" />
+                <span class="icon is-small is-right">
+                <i class="circle-loader"></i>
+                <i id="correct" class="fas fa-check"></i>
+                <i id="incorrect" class="fas fa-times"></i>
+                </span>
+              </p>
+              <p id="flag-submit" class="control">
+                <button type="submit" class="button is-dark">
+                Submit
+                </button>
+              </p>
+            </div>
+            <p class="help">Input the the user or root flag hash.</p>
+          </form>
+        </div>
+      </div>
+    </div>
     <div id="machines" class="machine-container">
       {{ range $index, $value := .Machines }}
       <div class="card">
