@@ -3,7 +3,9 @@ package db
 type Machine struct {
 	Id         uint64 `json:"-"`
 	Name       string `json:"Name"`
+	Type       string `json:"Type"`
 	Points     uint64 `json:"-"`
+	Status     string `json:"Status"`
 	Difficulty string `json:"Difficulty"`
 	UserFlag   string `json:"-"`
 	RootFlag   string `json:"-"`
@@ -12,6 +14,7 @@ type Machine struct {
 	IpAddress  string `json:"IpAddress"`
 }
 
+var MachineType = [...]string{"Linux", "Windows"}
 var MachineDifficulty = [...]string{"Easy", "Medium", "Hard", "Insane"}
 
 func GetMachines() (*[]Machine, error) {
@@ -24,6 +27,18 @@ func GetMachines() (*[]Machine, error) {
 	}
 
 	return &machines, nil
+}
+
+func SetMachineStatus(machine *Machine) error {
+	_, err := db.Update("machines").
+		Set("status", machine.Status).
+		Where("name = ?", machine.Name).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func SetMachineIp(machine *Machine) error {

@@ -138,6 +138,10 @@ func UpdateMachines() {
 				Name:      v.Name,
 				IpAddress: v.Ip,
 			})
+			db.SetMachineStatus(&db.Machine{
+				Name:   v.Name,
+				Status: v.Status,
+			})
 		}
 
 		time.Sleep(5 * time.Second)

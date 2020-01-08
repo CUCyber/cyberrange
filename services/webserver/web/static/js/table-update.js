@@ -1,7 +1,17 @@
 var interval;
 
 function copyMachineData(machine, newMachine) {
-  machine.ip.innerText = newMachine.IpAddress;
+  machine.ipaddr.innerText = newMachine.IpAddress;
+  machine.userowns.innerText = newMachine.UserOwns;
+  machine.rootowns.innerText = newMachine.RootOwns;
+
+  $('#machines').find("div.card").each(function(){
+    statusObj = $(this).find(".fa-circle")
+    statusObj.removeClass(function(index, className) {
+        return (className.match("machine-status-.*") || []).join(' ');
+    });
+    statusObj.addClass("machine-status-" + newMachine.Status);
+  });
 }
 
 function updateMachineList() {
@@ -19,16 +29,14 @@ function updateMachineList() {
       return;
     }
 
-    let rows = $('#machines-table').find('tbody tr');
-
     json.forEach(function (newMachine) {
-      Array.prototype.forEach.call(rows, function (row) {
+      $('#machines').find("div.card").each(function(){
         var machine = new Object();
 
-        Object.keys(row.cells).forEach(function (key) {
-          var cell = row.cells[key];
-          machine[cell.dataset.val] = cell;
-        });
+        machine["name"] = $(this).find(".card-header-title")[0];
+        machine["ipaddr"] = $(this).find(".machine-address")[0];
+        machine["userowns"] = $(this).find(".machine-user-owns")[0];
+        machine["rootowns"] = $(this).find(".machine-root-owns")[0];
 
         if (machine.name.innerText == newMachine.Name) {
           copyMachineData(machine, newMachine);
@@ -38,6 +46,6 @@ function updateMachineList() {
   });
 }
 
-if ($('#machines-table').length) {
+if ($('#machines').length) {
   interval = setInterval(updateMachineList, 5 * 1000);
 }

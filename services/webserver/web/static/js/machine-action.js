@@ -1,4 +1,4 @@
-let actions = $('#machines-table').find('tbody tr td a');
+let actions = $('#machines').find("div.card footer a")
 
 function actionRequest(action, action_type) {
   $.ajax({

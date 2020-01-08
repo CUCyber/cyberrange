@@ -5,6 +5,7 @@ package proto;
 message Machine {
   string name = 1;
   string ip = 2;
+  string status = 3;
 }
 
 message MachineList {

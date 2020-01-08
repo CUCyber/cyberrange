@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
+	"strings"
 )
 
 type LoginFormData struct {
@@ -18,6 +19,7 @@ var (
 func MachineForm(req *http.Request) (*db.Machine, error) {
 	name := req.PostFormValue("name")
 	points := req.PostFormValue("points")
+	ostype := req.PostFormValue("type")
 	difficulty := req.PostFormValue("difficulty")
 	userflag := req.PostFormValue("userflag")
 	rootflag := req.PostFormValue("rootflag")
@@ -42,6 +44,17 @@ func MachineForm(req *http.Request) (*db.Machine, error) {
 		return nil, ErrInvalidFormData
 	}
 
+	validType := false
+	for _, val := range db.MachineType {
+		if ostype == val {
+			validType = true
+			break
+		}
+	}
+	if !validType {
+		return nil, ErrInvalidFormData
+	}
+
 	if userflag == "" {
 		return nil, ErrInvalidFormData
 	}
@@ -57,6 +70,7 @@ func MachineForm(req *http.Request) (*db.Machine, error) {
 	return &db.Machine{
 		Name:       name,
 		Points:     pointval,
+		Type:       strings.ToLower(ostype),
 		Difficulty: difficulty,
 		UserFlag:   userflag,
 		RootFlag:   rootflag,

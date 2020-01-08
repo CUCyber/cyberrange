@@ -371,7 +371,11 @@ func ListMachines() (*proto.MachineList, error) {
 		}
 
 		vmName = strings.TrimPrefix(vmName, prefix)
-		machines = append(machines, &proto.Machine{Name: vmName, Ip: ipv4Address})
+		machines = append(machines, &proto.Machine{
+			Name:   vmName,
+			Ip:     ipv4Address,
+			Status: status,
+		})
 	}
 
 	return &proto.MachineList{Machines: machines}, nil

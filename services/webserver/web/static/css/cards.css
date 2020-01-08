@@ -1,0 +1,89 @@
+.machine-container{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+	grid-gap: 0.5em;
+    margin-top: 0.5em;
+}
+
+.machine-card-content {
+    text-align: center;
+	background-color: transparent;
+    padding: 1.0rem;
+}
+
+.machine-status-not_responding,
+.machine-status-unknown {
+    color: hsl(0, 0%, 21%);
+}
+
+.machine-status-down {
+    color: hsl(348, 100%, 61%);
+}
+
+.machine-status-image_locked,
+.machine-status-migrating,
+.machine-status-paused,
+.machine-status-reboot_in_progress,
+.machine-status-restoring_state,
+.machine-status-saving_state,
+.machine-status-suspended,
+.machine-status-unassigned,
+.machine-status-wait_for_launch, {
+    color: hsl(48, 100%, 67%);
+}
+
+.machine-status-powering_down,
+.machine-status-powering_up {
+    color: hsl(171, 100%, 41%);
+}
+
+.machine-status-up {
+    color: hsl(141, 53%, 53%);
+}
+
+.machine-type {
+    font-size: 2.5rem;
+}
+
+.machine-difficulty {
+    font-size: 1rem;
+    padding-bottom: .5rem;
+}
+
+.machine-address {
+    font-size: 1rem;
+    padding-bottom: .5rem;
+}
+
+.machine-address.empty {
+    padding-bottom: 2rem;
+}
+
+.own-container {
+    display:flex;
+}
+
+.machine-user-owns,
+.machine-root-owns {
+    flex-grow: 1;
+}
+
+.machine-user-owns:after {
+    font-family: FontAwesome;
+    font-weight: 400;
+    overflow: visible;
+    content: '\f155';
+    padding-left: .25em;
+}
+
+.machine-root-owns:after {
+    font-family: FontAwesome;
+    font-weight: 400;
+    overflow: visible;
+    content: '\f292';
+    padding-left: .25em;
+}
+
+.own-buffer {
+    flex-grow: 2;
+}
