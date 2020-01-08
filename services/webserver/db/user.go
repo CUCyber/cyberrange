@@ -11,27 +11,14 @@ type User struct {
 func GetRank(user *User) (uint64, error) {
 	var rank uint64
 
-	_, err := db.Select("COUNT(*) AS rank").From("users").
-		Where("points >= (SELECT points FROM users WHERE id = ?)", user.Id).
+	_, err := db.Select("COUNT(*)+1 AS rank").From("users").
+		Where("points > ?", user.Points).
 		Load(&rank)
 	if err != nil {
 		return 0, err
 	}
 
 	return rank, nil
-}
-
-func Scoreboard() (*[]User, error) {
-	var users []User
-
-	_, err := db.Select("*").From("users").
-		OrderDesc("points").
-		Load(&users)
-	if err != nil {
-		return nil, err
-	}
-
-	return &users, nil
 }
 
 func GetUsers() (*[]User, error) {

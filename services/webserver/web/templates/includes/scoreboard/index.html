@@ -22,7 +22,7 @@
             <tbody>
               {{ range $index, $value := .Users }}
               <tr>
-                <td>{{ inc $index }}</td>
+                <td>{{ rank $value }}</td>
                 <td>
                   <a href="/users/{{ .Id }}">
                     {{ .Username }}

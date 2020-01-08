@@ -50,6 +50,10 @@ func MachineForm(req *http.Request) (*db.Machine, error) {
 		return nil, ErrInvalidFormData
 	}
 
+	if userflag == rootflag {
+		return nil, ErrInvalidFormData
+	}
+
 	return &db.Machine{
 		Name:       name,
 		Points:     pointval,

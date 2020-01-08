@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
+	"net/http/pprof"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -25,7 +27,8 @@ var routes = []struct {
 	{"/revert", c.requiresLogin(c.revert)},
 	{"/list", c.requiresLogin(c.list)},
 	{"/scoreboard", c.requiresLogin(c.scoreboard)},
-	{"/admin", c.requiresAdmin((c.admin))},
+	{"/admin", c.requiresAdmin(c.admin)},
+	{"/debug/pprof", c.requiresAdmin(c.profile)},
 }
 
 func (c *controller) index(w http.ResponseWriter, req *http.Request) {
@@ -266,7 +269,7 @@ func (c *controller) scoreboard(w http.ResponseWriter, req *http.Request) {
 
 	user := getUser(session)
 
-	users, err := db.Scoreboard()
+	users, err := db.GetUsers()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -327,22 +330,24 @@ func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		go func(machine *db.Machine) {
+			err = CreateMachine(machine)
+			if err != nil {
+				return
+			}
+
+			err = SnapshotMachine(machine)
+			if err != nil {
+				return
+			}
+
+			_, err = db.FindOrCreateMachine(machine)
+			if err != nil {
+				return
+			}
+		}(data)
+
 		w.Write([]byte("success"))
-
-		err = CreateMachine(data)
-		if err != nil {
-			return
-		}
-
-		err = SnapshotMachine(data)
-		if err != nil {
-			return
-		}
-
-		_, err = db.FindOrCreateMachine(data)
-		if err != nil {
-			return
-		}
 	default:
 		serveTemplate(w, "index.html", data, adminTemplate)
 	}
@@ -415,10 +420,30 @@ func (c *controller) logout(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 
+func (c *controller) profile(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/debug/pprof")
+	switch path {
+	case "/profile":
+		pprof.Profile(w, req)
+	case "/symbol":
+		pprof.Symbol(w, req)
+	case "/trace":
+		pprof.Trace(w, req)
+	default:
+		pprof.Index(w, req)
+	}
+}
+
 func (c *controller) health(w http.ResponseWriter, req *http.Request) {
 	if h := atomic.LoadInt64(&c.healthy); h == 0 {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	} else {
-		fmt.Fprintf(w, "uptime: %s\n", time.Since(time.Unix(0, h)))
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+
+		fmt.Fprintf(w, "Uptime: %s\n", time.Since(time.Unix(0, h)))
+		fmt.Fprintf(w, "TotalAlloc: %+v\n", m.TotalAlloc)
+		fmt.Fprintf(w, "HeapAlloc: %+v\n", m.HeapAlloc)
+		fmt.Fprintf(w, "StackInuse: %+v\n", m.StackInuse)
 	}
 }
