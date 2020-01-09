@@ -5,10 +5,12 @@
 .is-sidebar-menu {
   padding: 2.5rem;
   background: #4a4a4a;
+  width: 15rem !important;
 }
 
 .mobile-sidebar {
   width: 100vw !important;
+  display: block !important;
 }
 
 .is-hidden-content {
@@ -84,6 +86,39 @@
   padding-left: 0px;
 }
 
+aside ul li ul {
+  display: none;
+}
+
+aside ul li .parent {
+  float: right;
+}
+
+/* Scoreboard/Profile Tables */
+
+table {
+  overflow: hidden;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  table-layout: fixed;
+}
+
+table td {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.table th:not([align]),
+.table td:not([align]),
+.content table th:not([align]),
+.content table td:not([align]) {
+  text-align: center;
+}
+
+/* Modal Flag Submission */
+
 .modal-title {
   font-size: 2rem;
   font-weight: bold;
@@ -95,6 +130,11 @@
   font-size: 1.5rem;
   text-align: center;
   padding-bottom: 1rem;
+}
+
+.modal-content {
+  padding: 2rem;
+  margin: -25vh auto 0 auto;
 }
 
 .form-title {
@@ -109,69 +149,6 @@
   font-weight: bold;
   text-align: center;
   padding-bottom: 2rem;
-}
-
-.fa-play,
-.fa-stop,
-.fa-sync,
-.fa-flag {
-  padding: 5px;
-  font-size: 25px;
-  background: #4a4a4a;
-  transition: .2s;
-  cursor: pointer;
-  padding: 5px;
-  border: 1px solid #949ba2;
-  border-radius: 3px;
-  text-align: center;
-}
-
-.fa-play {
-  color: hsl(141, 71%, 48%);
-}
-
-.fa-stop {
-  color: hsl(348, 100%, 61%);
-}
-
-.fa-sync {
-  color: hsl(48, 100%, 67%);
-}
-
-.fa-flag {
-  color: hsl(204, 86%, 53%);
-}
-
-aside ul li ul {
-  display: none;
-}
-
-aside ul li .parent {
-  float: right;
-}
-
-table {
-  overflow: hidden;
-  max-width: 800px;
-  width: 100%;
-  margin: 0 auto;
-  position: relative;
-}
-
-table * {
-  position: relative;
-}
-
-.table th:not([align]),
-.table td:not([align]),
-.content table th:not([align]),
-.content table td:not([align]) {
-  text-align: center;
-}
-
-.modal-content {
-  padding: 2rem;
-  margin: -25vh auto 0 auto;
 }
 
 .circle-loader {
@@ -214,6 +191,8 @@ table * {
   color: #f44336;
   display: block;
 }
+
+/* Notifications */
 
 #notification {
   visibility: visible;
@@ -273,97 +252,3 @@ table * {
     opacity: 0;
   }
 }
-
-@media screen and (max-width: 992px) {
-  table {
-    display: block;
-  }
-  table>*,
-  table tr,
-  table td,
-  table th {
-    display: block;
-  }
-  table thead {
-    display: none;
-  }
-  table tbody tr {
-    height: auto;
-    padding: 8px 0;
-  }
-  .table td {
-    padding-top: 30px;
-  }
-  table tbody tr td {
-    padding-left: 45%;
-    margin-bottom: 12px;
-  }
-  table tbody tr td:last-child {
-    margin-bottom: 0;
-  }
-  table.profile tbody tr td {
-    padding-top: 1.5rem;
-  }
-  table.profile tbody tr td:before,
-  table.machines tbody tr td:before,
-  table.scoreboard tbody tr td:before {
-    position: absolute;
-    font-weight: 700;
-    width: 40%;
-    left: 10px;
-    top: 0;
-  }
-  .table th:not([align]),
-  .table td:not([align]),
-  .content table th:not([align]),
-  .content table td:not([align]) {
-    text-align: left;
-  }
-  table.machines tbody tr td:nth-child(1):before {
-    content: "Name";
-  }
-  table.machines tbody tr td:nth-child(2):before {
-    content: "Address";
-  }
-  table.machines tbody tr td:nth-child(3):before {
-    content: "Difficulty";
-  }
-  table.machines tbody tr td:nth-child(4):before {
-    content: "User Owns";
-  }
-  table.machines tbody tr td:nth-child(5):before {
-    content: "Root Owns";
-  }
-  table.machines tbody tr td:nth-child(6):before {
-    content: "Actions";
-  }
-  table.scoreboard tbody tr td:nth-child(1):before {
-    content: "Rank";
-  }
-  table.scoreboard tbody tr td:nth-child(2):before {
-    content: "Username";
-  }
-  table.scoreboard tbody tr td:nth-child(3):before {
-    content: "Points";
-  }
-  table.scoreboard tbody tr td:nth-child(4):before {
-    content: "User Owns";
-  }
-  table.scoreboard tbody tr td:nth-child(5):before {
-    content: "Root Owns";
-  }
-  table.profile tbody tr td:nth-child(1):before {
-    content: "Rank";
-  }
-  table.profile tbody tr td:nth-child(2):before {
-    content: "Points";
-  }
-  table.profile tbody tr td:nth-child(3):before {
-    content: "User Owns";
-  }
-  table.profile tbody tr td:nth-child(4):before {
-    content: "Root Owns";
-  }
-}
-
-

@@ -7,17 +7,16 @@
           Admin Panel
         </p>
       </div>
-      <div class="modal machine-submission">
-        <div class="modal-background"></div>
-        <div class="modal-content" style="width: 480px">
-          <div class="box" style="text-align: center">
-            <div class="modal-title">Response</div>
-            <div id="machine-form-response" class="modal-status"></div>
-          </div>
-        </div>
-      </div>
       <div class="card-content">
         <div class="content">
+          <p>
+            As a "preflight checklist", make sure that you have:
+            <ol>
+              <li>Pushed your playbook to ansible</li>
+              <li>Used the same machine name on this form as the folder in <em>cyberrange-playbooks</em></li>
+              <li>Used different strings for the user and root flags</li>
+            </ol>
+          </p>
           <form id="machine-form" method="POST">
             <div class="field">
               <label class="label">Machine Name</label>
