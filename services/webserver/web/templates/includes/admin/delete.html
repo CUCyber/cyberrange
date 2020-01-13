@@ -1,0 +1,38 @@
+{{define "content"}}
+<div class="container column is-12">
+  <div class="section">
+    <div class="card">
+      <div class="card-header">
+        <p class="card-header-title">
+          Machine Deletion
+        </p>
+      </div>
+      <div class="card-content">
+        <div class="content">
+            <article class="message is-danger">
+              <div class="message-header">
+                <p>Danger!</p>
+              </div>
+              <div class="message-body">
+                There is no going back from this! Make sure you have the right name for the machine you want to delete!
+              </div>
+            </article>
+          <form id="machine-deletion-form" method="POST">
+            <div class="field">
+              <label class="label">Machine Name</label>
+              <div class="control">
+                <input id="Name" name="Name" class="input" type="text" placeholder="Machine Name">
+              </div>
+            </div>
+            <div class="field is-grouped">
+              <div class="control">
+                <button class="button is-link">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

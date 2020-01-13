@@ -2,10 +2,12 @@ package server
 
 import (
 	"context"
+	"time"
+
 	"github.com/cucyber/cyberrange/pkg/proto"
 	"github.com/cucyber/cyberrange/services/webserver/db"
 	"google.golang.org/grpc"
-	"time"
+	"google.golang.org/grpc/connectivity"
 )
 
 var conn *grpc.ClientConn
@@ -113,7 +115,7 @@ func RestartMachine(machine *db.Machine) error {
 }
 
 func RevertMachine(machine *db.Machine) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
 	req := &proto.Machine{Name: machine.Name}
@@ -128,31 +130,70 @@ func RevertMachine(machine *db.Machine) error {
 
 func UpdateMachines() {
 	for {
+		time.Sleep(5 * time.Second)
+
 		machines, err := ListMachines()
 		if err != nil {
 			continue
 		}
 
-		for _, v := range machines {
+		for i := range machines {
 			db.SetMachineIp(&db.Machine{
-				Name:      v.Name,
-				IpAddress: v.Ip,
+				Name:      machines[i].Name,
+				IpAddress: machines[i].Ip,
 			})
 			db.SetMachineStatus(&db.Machine{
-				Name:   v.Name,
-				Status: v.Status,
+				Name:   machines[i].Name,
+				Status: machines[i].Status,
 			})
 		}
+	}
+}
 
-		time.Sleep(5 * time.Second)
+func ConnectManager(address string) *grpc.ClientConn {
+	var err error
+	var managerConn *grpc.ClientConn
+
+	for {
+		managerConn, err = grpc.Dial(address,
+			grpc.WithInsecure(),
+			grpc.WithBlock(),
+			grpc.WithTimeout(10*time.Second),
+		)
+
+		if err != nil && conn == nil {
+			/* There was an error on initial connection */
+			panic(err.Error())
+		} else if err != nil {
+			/* There was a connection break, keep retrying */
+			continue
+		}
+
+		/* We've recovered the manager connection */
+		break
+	}
+
+	return managerConn
+}
+
+func MonitorManager() {
+	for {
+		conn.WaitForStateChange(context.Background(), conn.GetState())
+
+		for {
+			state := conn.GetState()
+			if state == connectivity.TransientFailure || state == connectivity.Shutdown {
+				c.logger.Printf("ERROR: Manager Connection Break!")
+				CloseManager()
+				InitializeManager()
+			} else {
+				break
+			}
+		}
 	}
 }
 
 func InitializeManager() {
-	var err error
-	conn, err = grpc.Dial("10.0.144.12:8080", grpc.WithInsecure())
-	if err != nil {
-		panic(err.Error())
-	}
+	conn = ConnectManager("manager.vm.cucyber.net:8080")
 	client = proto.NewManagerClient(conn)
 }

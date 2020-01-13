@@ -9,8 +9,10 @@ var (
 )
 
 var (
-	ErrWrongFlag = errors.New("cyberrange: flag submission is incorrect")
-	ErrUserOwned = errors.New("cyberrange: user has already been owned by this user")
-	ErrRootOwned = errors.New("cyberrange: root has already been owned by this user")
-	ErrBothOwned = errors.New("cyberrange: user and root have already been owned by this user")
+	ErrWrongFlag    = errors.New("cyberrange: flag submission is incorrect")
+	ErrUserOwned    = errors.New("cyberrange: user has already been owned by this user")
+	ErrRootOwned    = errors.New("cyberrange: root has already been owned by this user")
+	ErrBothOwned    = errors.New("cyberrange: user and root have already been owned by this user")
+	ErrUserNotOwned = errors.New("cyberrange: user has not been owned by this user")
+	ErrRootNotOwned = errors.New("cyberrange: root has not been owned by this user")
 )

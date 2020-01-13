@@ -36,8 +36,12 @@ CREATE TABLE IF NOT EXISTS `machine_owns` (
   `user_id` BIGINT unsigned NOT NULL,
   `machine_id` BIGINT unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   FOREIGN KEY (`machine_id`) REFERENCES `machines` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `machine_user_owns` (
@@ -46,6 +50,8 @@ CREATE TABLE IF NOT EXISTS `machine_user_owns` (
   `own_id` BIGINT unsigned NOT NULL UNIQUE,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`own_id`) REFERENCES `machine_owns` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `machine_root_owns` (
@@ -54,4 +60,6 @@ CREATE TABLE IF NOT EXISTS `machine_root_owns` (
   `own_id` BIGINT unsigned NOT NULL UNIQUE,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`own_id`) REFERENCES `machine_owns` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

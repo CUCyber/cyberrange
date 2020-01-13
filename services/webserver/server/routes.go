@@ -1,15 +1,15 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
 	"net/http/pprof"
 	"runtime"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/cucyber/cyberrange/services/webserver/db"
 )
 
 var routes = []struct {
@@ -27,7 +27,9 @@ var routes = []struct {
 	{"/revert", c.requiresLogin(c.revert)},
 	{"/list", c.requiresLogin(c.list)},
 	{"/scoreboard", c.requiresLogin(c.scoreboard)},
-	{"/admin", c.requiresAdmin(c.admin)},
+	{"/admin/owns", c.requiresAdmin(c.admin_owns)},
+	{"/admin/create", c.requiresAdmin(c.admin_create)},
+	{"/admin/delete", c.requiresAdmin(c.admin_delete)},
 	{"/debug/pprof", c.requiresAdmin(c.profile)},
 }
 
@@ -54,11 +56,11 @@ func (c *controller) index(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		http.Redirect(w, req, "/login", http.StatusFound)
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, req, "/home", http.StatusFound)
+	http.Redirect(w, req, "/home", http.StatusSeeOther)
 }
 
 func (c *controller) home(w http.ResponseWriter, req *http.Request) {
@@ -91,8 +93,53 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 
 	user := getUser(session)
 
-	switch req.Method {
-	case "GET":
+	path := strings.TrimPrefix(req.URL.Path, "/machines")
+	switch path {
+	case "/flag":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			data := struct {
+				Flag db.Flag
+				Name string
+			}{}
+
+			err = ReadJSON(conn, &data)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			machine, err := db.FindMachineByName(
+				&db.Machine{Name: data.Name},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			user, err := db.FindUserById(
+				&db.User{Id: user.User.Id},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			err = db.OwnMachine(data.Flag, user, machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Correct Flag.")
+		}()
+	default:
 		machines, err := db.GetMachines()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -105,108 +152,136 @@ func (c *controller) machines(w http.ResponseWriter, req *http.Request) {
 		}
 
 		serveTemplate(w, "index.html", data, machinesTemplate)
-	case "POST":
-		flag := req.FormValue("flag")
-		name := req.FormValue("machine-name")
-
-		err := db.OwnMachine(flag, name, user.User)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		w.Write([]byte("success"))
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
 	}
 }
 
 func (c *controller) list(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case "GET":
+	conn, err := Websockify(w, req)
+	if err != nil {
+		return
+	}
+
+	go func() {
+		defer conn.Close()
+
 		machines, err := db.GetMachines()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		js, err := json.Marshal(machines)
+
+		err = WriteJSON(conn, &machines)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Write(js)
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
+	}()
 }
 
 func (c *controller) start(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case "POST":
-		name := req.FormValue("machine-name")
-		machine := &db.Machine{Name: name}
+	conn, err := Websockify(w, req)
+	if err != nil {
+		return
+	}
 
-		exists, err := db.MachineExists(machine)
+	go func() {
+		defer conn.Close()
+
+		var machine db.Machine
+		err = ReadJSON(conn, &machine)
 		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		} else if exists == false {
-			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			WriteJSONError(conn, err)
 			return
 		}
 
-		go StartMachine(machine)
+		exists, err := db.MachineExists(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		} else if exists == false {
+			WriteJSONError(conn, db.ErrMachineNotFound)
+			return
+		}
 
-		w.Write([]byte("success"))
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
+		err = StartMachine(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		}
+
+		WriteJSONSuccess(conn, "Start Machine Request Initiated.")
+	}()
 }
 
 func (c *controller) stop(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case "POST":
-		name := req.FormValue("machine-name")
-		machine := &db.Machine{Name: name}
+	conn, err := Websockify(w, req)
+	if err != nil {
+		return
+	}
 
-		exists, err := db.MachineExists(machine)
+	go func() {
+		defer conn.Close()
+
+		var machine db.Machine
+		err = ReadJSON(conn, &machine)
 		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		} else if exists == false {
-			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			WriteJSONError(conn, err)
 			return
 		}
 
-		go StopMachine(machine)
+		exists, err := db.MachineExists(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		} else if exists == false {
+			WriteJSONError(conn, db.ErrMachineNotFound)
+			return
+		}
 
-		w.Write([]byte("success"))
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
+		err = StopMachine(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		}
+
+		WriteJSONSuccess(conn, "Stop Machine Request Initiated.")
+	}()
 }
 
 func (c *controller) revert(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case "POST":
-		name := req.FormValue("machine-name")
-		machine := &db.Machine{Name: name}
+	conn, err := Websockify(w, req)
+	if err != nil {
+		return
+	}
 
-		exists, err := db.MachineExists(machine)
+	go func() {
+		defer conn.Close()
+
+		var machine db.Machine
+		err = ReadJSON(conn, &machine)
 		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		} else if exists == false {
-			w.Write([]byte(db.ErrMachineNotFound.Error()))
+			WriteJSONError(conn, err)
 			return
 		}
 
-		go RevertMachine(machine)
+		exists, err := db.MachineExists(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		} else if exists == false {
+			WriteJSONError(conn, db.ErrMachineNotFound)
+			return
+		}
 
-		w.Write([]byte("success"))
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
+		WriteJSONInfo(conn, "Revert Machine Request Initiated.", 20)
+
+		err = RevertMachine(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		}
+
+		WriteJSONSuccess(conn, "Revert Machine Request Completed.")
+	}()
 }
 
 func (c *controller) me(w http.ResponseWriter, req *http.Request) {
@@ -219,7 +294,7 @@ func (c *controller) me(w http.ResponseWriter, req *http.Request) {
 	user := getUser(session)
 	profile := fmt.Sprintf("/users/%d", user.User.Id)
 
-	http.Redirect(w, req, profile, http.StatusFound)
+	http.Redirect(w, req, profile, http.StatusSeeOther)
 }
 
 func (c *controller) users(w http.ResponseWriter, req *http.Request) {
@@ -233,31 +308,26 @@ func (c *controller) users(w http.ResponseWriter, req *http.Request) {
 
 	uid, err := ParseUID(req.URL.Path)
 	if err != nil {
-		http.Redirect(w, req, "/home", http.StatusFound)
+		http.Redirect(w, req, "/home", http.StatusSeeOther)
 	}
 
 	profile, err := db.FindUserById(&db.User{Id: uid})
 	if err != nil {
-		http.Redirect(w, req, "/home", http.StatusFound)
+		http.Redirect(w, req, "/home", http.StatusSeeOther)
 	}
 
 	timeline, err := db.GetOwnsTimeline(uid)
 	if err != nil {
-		http.Redirect(w, req, "/home", http.StatusFound)
+		http.Redirect(w, req, "/home", http.StatusSeeOther)
 	}
 
-	switch req.Method {
-	case "GET":
-		data := &TemplateDataContext{
-			User:         &user,
-			Profile:      profile,
-			OwnsTimeline: timeline,
-		}
-
-		serveTemplate(w, "index.html", data, profileTemplate)
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
+	data := &TemplateDataContext{
+		User:         &user,
+		Profile:      profile,
+		OwnsTimeline: timeline,
 	}
+
+	serveTemplate(w, "index.html", data, profileTemplate)
 }
 
 func (c *controller) scoreboard(w http.ResponseWriter, req *http.Request) {
@@ -280,76 +350,358 @@ func (c *controller) scoreboard(w http.ResponseWriter, req *http.Request) {
 		Users: users,
 	}
 
-	switch req.Method {
-	case "GET":
-		serveTemplate(w, "index.html", data, scoreboardTemplate)
-	default:
-		fmt.Fprintf(w, "Unsupported HTTP option.")
-	}
+	serveTemplate(w, "index.html", data, scoreboardTemplate)
 }
 
-func (c *controller) admin(w http.ResponseWriter, req *http.Request) {
-	session, err := store.Get(req, "auth-cookie")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func (c *controller) admin_owns(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/admin/owns")
 
-	user := getUser(session)
+	switch path {
+	case "/create_user":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
 
-	data := &TemplateDataContext{
-		User: &user,
-	}
+		go func() {
+			defer conn.Close()
 
-	switch req.Method {
-	case "POST":
-		err := req.ParseForm()
+			data := struct {
+				Username    string
+				MachineName string
+			}{}
+
+			err = ReadJSON(conn, &data)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			machine, err := db.FindMachineByName(
+				&db.Machine{Name: data.MachineName},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			user, err := db.FindUserByUsername(
+				&db.User{Username: data.Username},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			err = db.UserOwnMachine(user, machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Created User Own")
+		}()
+	case "/create_root":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			data := struct {
+				Username    string
+				MachineName string
+			}{}
+
+			err = ReadJSON(conn, &data)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			machine, err := db.FindMachineByName(
+				&db.Machine{Name: data.MachineName},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			user, err := db.FindUserByUsername(
+				&db.User{Username: data.Username},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			err = db.RootOwnMachine(user, machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Created Root Own")
+		}()
+	case "/delete_user":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			data := struct {
+				Username    string
+				MachineName string
+			}{}
+
+			err = ReadJSON(conn, &data)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			machine, err := db.FindMachineByName(
+				&db.Machine{Name: data.MachineName},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			user, err := db.FindUserByUsername(
+				&db.User{Username: data.Username},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			err = db.DeleteUserOwn(user, machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Deleted User Own")
+		}()
+	case "/delete_root":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			data := struct {
+				Username    string
+				MachineName string
+			}{}
+
+			err = ReadJSON(conn, &data)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			machine, err := db.FindMachineByName(
+				&db.Machine{Name: data.MachineName},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			user, err := db.FindUserByUsername(
+				&db.User{Username: data.Username},
+			)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			err = db.DeleteRootOwn(user, machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Deleted Root Own")
+		}()
+	default:
+		session, err := store.Get(req, "auth-cookie")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		data, err := MachineForm(req)
+		user := getUser(session)
+
+		data := &TemplateDataContext{
+			User: &user,
+		}
+
+		serveTemplate(w, "owns.html", data, adminTemplate)
+	}
+}
+
+func (c *controller) admin_create(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/admin/create")
+
+	switch path {
+	case "/machine":
+		conn, err := Websockify(w, req)
 		if err != nil {
-			w.Write([]byte(err.Error()))
 			return
 		}
 
-		exists, err := db.MachineExists(data)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		} else if exists {
-			w.Write([]byte(db.ErrMachineExists.Error()))
-			return
-		}
+		go func() {
+			defer conn.Close()
 
-		err = CheckCreateMachine(data)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		go func(machine *db.Machine) {
-			err = CreateMachine(machine)
+			var machine db.Machine
+			err = ReadJSON(conn, &machine)
 			if err != nil {
+				WriteJSONError(conn, err)
 				return
 			}
 
-			err = SnapshotMachine(machine)
+			WriteJSONInfo(conn, "Checking Database for Duplicate Machines", 0)
+
+			exists, err := db.MachineExists(&machine)
 			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			} else if exists != false {
+				WriteJSONError(conn, db.ErrMachineExists)
 				return
 			}
 
-			_, err = db.FindOrCreateMachine(machine)
+			WriteJSONInfo(conn, "Checking Machine Creation", 10)
+
+			err = CheckCreateMachine(&machine)
 			if err != nil {
+				WriteJSONError(conn, err)
 				return
 			}
-		}(data)
 
-		w.Write([]byte("success"))
+			WriteJSONInfo(conn, "Creating Machine", 20)
+
+			err = CreateMachine(&machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONInfo(conn, "Creating Initial Machine Snapshot", 70)
+
+			err = SnapshotMachine(&machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONInfo(conn, "Creating Database Entry", 90)
+
+			_, err = db.FindOrCreateMachine(&machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONSuccess(conn, "Finished Creating Machine")
+		}()
 	default:
-		serveTemplate(w, "index.html", data, adminTemplate)
+		session, err := store.Get(req, "auth-cookie")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		user := getUser(session)
+
+		data := &TemplateDataContext{
+			User: &user,
+		}
+
+		serveTemplate(w, "create.html", data, adminTemplate)
+	}
+}
+
+func (c *controller) admin_delete(w http.ResponseWriter, req *http.Request) {
+	path := strings.TrimPrefix(req.URL.Path, "/admin/delete")
+	switch path {
+	case "/machine":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			var machine db.Machine
+			err = ReadJSON(conn, &machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONInfo(conn, "Checking Database for Machine", 0)
+
+			exists, err := db.MachineExists(&machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			} else if exists == false {
+				WriteJSONError(conn, db.ErrMachineNotFound)
+				return
+			}
+
+			WriteJSONInfo(conn, "Deleting Machine", 50)
+
+			err = db.DeleteMachine(&machine)
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			WriteJSONInfo(conn, "Reverting User Owns", 75)
+
+			users, err := db.GetUsers()
+			if err != nil {
+				WriteJSONError(conn, err)
+				return
+			}
+
+			for i := range *users {
+				err = db.ResetOwns(&(*users)[i])
+				if err != nil {
+					WriteJSONError(conn, err)
+					return
+				}
+			}
+
+			WriteJSONSuccess(conn, "Deleted Machine")
+		}()
+	default:
+		session, err := store.Get(req, "auth-cookie")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		user := getUser(session)
+
+		data := &TemplateDataContext{
+			User: &user,
+		}
+
+		serveTemplate(w, "delete.html", data, adminTemplate)
 	}
 }
 
@@ -417,7 +769,7 @@ func (c *controller) logout(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	http.Redirect(w, req, "/", http.StatusFound)
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 func (c *controller) profile(w http.ResponseWriter, req *http.Request) {

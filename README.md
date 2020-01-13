@@ -9,7 +9,7 @@ There are two services, `webserver` and `manager`. Webserver deploys a website w
 ### Webserver
 
 1. `git clone https://github.com/CUCyber/cyberrange.git`
-2. Update the configuration information in `services/webserver/db/config.yaml`.
+2. Update the configuration information in `services/webserver/db/config.yaml` and `services/webserver/web/static/js/config.js`.
 3. `make webserver`
 
 ### Manager
@@ -21,5 +21,6 @@ There are two services, `webserver` and `manager`. Webserver deploys a website w
 ## Development
 
 1. `git clone https://github.com/CUCyber/cyberrange.git`
-2. Make your changes
-3. Submit a PR
+2. Update the configuration information for the service you're changing
+3. Make your changes
+4. Submit a PR

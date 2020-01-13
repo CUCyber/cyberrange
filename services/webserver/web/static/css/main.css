@@ -86,6 +86,11 @@
   padding-left: 0px;
 }
 
+.message-header p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 aside ul li ul {
   display: none;
 }
@@ -193,62 +198,15 @@ table td {
 }
 
 /* Notifications */
-
-#notification {
-  visibility: visible;
-  position: absolute;
-  max-width: 20rem;
-  z-index: 1;
-  top: 4rem;
-  right: .5rem;
+.toast-info {
+  background-color: hsl(204, 86%, 53%);
 }
-
-#notification.show {
-  visibility: visible;
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+.toast-success {
+  background-color: hsl(141, 71%, 48%);
 }
-
-@-webkit-keyframes fadein {
-  from {
-    right: 0rem;
-    opacity: 0;
-  }
-  to {
-    right: .5rem;
-    opacity: 1;
-  }
+.toast-error {
+  background-color: hsl(348, 100%, 61%);
 }
-
-@keyframes fadein {
-  from {
-    right: 0rem;
-    opacity: 0;
-  }
-  to {
-    right: .5rem;
-    opacity: 1;
-  }
-}
-
-@-webkit-keyframes fadeout {
-  from {
-    right: .5rem;
-    opacity: 1;
-  }
-  to {
-    right: 0rem;
-    opacity: 0;
-  }
-}
-
-@keyframes fadeout {
-  from {
-    right: .5rem;
-    opacity: 1;
-  }
-  to {
-    right: 0rem;
-    opacity: 0;
-  }
+#toast-container > div:hover {
+    opacity: 0.8 !important;
 }

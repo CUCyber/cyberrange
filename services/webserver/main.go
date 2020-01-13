@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/cucyber/cyberrange/services/webserver/db"
 	"github.com/cucyber/cyberrange/services/webserver/server"
-	"os"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	server.InitializeSessions()
 	server.InstantiateTemplates()
 
+	go server.MonitorManager()
 	go server.UpdateMachines()
 
 	server.Serve(listenAddr, logPath)

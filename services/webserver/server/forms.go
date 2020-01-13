@@ -2,9 +2,10 @@ package server
 
 import (
 	"errors"
-	"github.com/cucyber/cyberrange/services/webserver/db"
 	"net/http"
 	"strings"
+
+	"github.com/cucyber/cyberrange/services/webserver/db"
 )
 
 type LoginFormData struct {
@@ -72,8 +73,8 @@ func MachineForm(req *http.Request) (*db.Machine, error) {
 		Points:     pointval,
 		Type:       strings.ToLower(ostype),
 		Difficulty: difficulty,
-		UserFlag:   userflag,
-		RootFlag:   rootflag,
+		UserFlag:   db.Flag(userflag),
+		RootFlag:   db.Flag(rootflag),
 	}, nil
 }
 

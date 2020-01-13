@@ -1,14 +1,16 @@
 package db
 
+type Flag string
+
 type Machine struct {
-	Id         uint64 `json:"-"`
+	Id         uint64 `json:"Id"`
 	Name       string `json:"Name"`
 	Type       string `json:"Type"`
-	Points     uint64 `json:"-"`
+	Points     uint64 `json:"Points"`
 	Status     string `json:"Status"`
 	Difficulty string `json:"Difficulty"`
-	UserFlag   string `json:"-"`
-	RootFlag   string `json:"-"`
+	UserFlag   Flag   `json:"UserFlag"`
+	RootFlag   Flag   `json:"RootFlag"`
 	UserOwns   uint64 `json:"UserOwns"`
 	RootOwns   uint64 `json:"RootOwns"`
 	IpAddress  string `json:"IpAddress"`
@@ -16,6 +18,10 @@ type Machine struct {
 
 var MachineType = [...]string{"Linux", "Windows"}
 var MachineDifficulty = [...]string{"Easy", "Medium", "Hard", "Insane"}
+
+func (Flag) MarshalJSON() ([]byte, error) {
+	return []byte(`""`), nil
+}
 
 func GetMachines() (*[]Machine, error) {
 	var machines []Machine
@@ -27,6 +33,17 @@ func GetMachines() (*[]Machine, error) {
 	}
 
 	return &machines, nil
+}
+
+func DeleteMachine(machine *Machine) error {
+	_, err := db.DeleteFrom("machines").
+		Where("name = ?", machine.Name).
+		Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func SetMachineStatus(machine *Machine) error {

@@ -6,7 +6,14 @@
       Admin
     </p>
     <ul class="menu-list">
-      <li><a href="/admin">Admin Panel</a></li>
+      <li>
+        <a>Admin Panel <i class="fas fa-sort-down parent"></i></a>
+        <ul>
+          <li><a href="/admin/create">Machine Creation</a></li>
+          <li><a href="/admin/delete">Machine Deletion</a></li>
+          <li><a href="/admin/owns">Own Management</a></li>
+        </ul>
+      </li>
     </ul>
     {{ end }}
     <p class="menu-label">

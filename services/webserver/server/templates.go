@@ -2,10 +2,11 @@ package server
 
 import (
 	"fmt"
-	"github.com/cucyber/cyberrange/services/webserver/db"
 	"html/template"
 	"net/http"
 	"path/filepath"
+
+	"github.com/cucyber/cyberrange/services/webserver/db"
 )
 
 type TemplateConfig struct {
@@ -77,9 +78,6 @@ func InstantiateTemplates() {
 			files := append(tmplCfg.layoutPath, tmpl)
 
 			t, err := template.New("").Funcs(template.FuncMap{
-				"inc": func(x int) int {
-					return x + 1
-				},
 				"icon": func(s string) string {
 					switch s {
 					case "user":

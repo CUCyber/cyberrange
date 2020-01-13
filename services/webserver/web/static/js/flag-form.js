@@ -7,25 +7,50 @@ $("#flag-form").submit(function (e) {
 
   $('.circle-loader').toggleClass('is-active');
 
-  data = $(this).serialize();
-  data += "&machine-name=" + $('.form-title').text()
+  form = $(this).FormToJSON();
+  form["Name"] = $('.form-title').text()
 
-  $.ajax({
-    type: "POST",
-    url: "/machines",
-    data: data,
-    success: function (response) {
-      setTimeout(function () {
-        if (response == "success") {
+  var ws = new WebSocket("ws://" + Server + "/machines/flag");
+
+  ws.onopen = function (event) {
+    ws.send(JSON.stringify(form));
+  };
+
+  ws.onerror = function (event) {
+    toastr.error('An error occurred. Please reload the page.', 'Flag Form');
+  };
+
+  ws.onmessage = function (event) {
+    const json = (function (resp) {
+      try {
+        return JSON.parse(resp);
+      } catch (err) {
+        return false;
+      }
+    })(event.data);
+
+    if (!json) {
+      toastr.error('Action request failed.', 'Flag Form');
+      return;
+    }
+
+    switch (json.Type) {
+      case "info":
+        break;
+      case "success":
+        setTimeout(function () {
           $('.circle-loader').removeClass('is-active');
           $('#correct').addClass('is-active');
-        } else {
+        }, (.5 * 1000));
+        break;
+      case "error":
+        setTimeout(function () {
           $('.circle-loader').removeClass('is-active');
           $('#incorrect').addClass('is-active');
-        }
-      }, (.5 * 1000));
+        }, (.5 * 1000));
+        break;
     }
-  });
+  };
 })
 
 function flagModal(machineName) {

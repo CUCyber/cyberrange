@@ -11,6 +11,14 @@
     padding: 1.0rem;
 }
 
+.machine-status-spinner {
+    display: block;
+}
+
+.machine-status-spinner-hidden {
+    display: none !important;
+}
+
 .machine-status-not_responding,
 .machine-status-unknown {
     color: hsl(0, 0%, 21%);
@@ -23,13 +31,19 @@
 .machine-status-image_locked,
 .machine-status-migrating,
 .machine-status-paused,
-.machine-status-reboot_in_progress,
-.machine-status-restoring_state,
-.machine-status-saving_state,
 .machine-status-suspended,
-.machine-status-unassigned,
-.machine-status-wait_for_launch, {
+.machine-status-unassigned {
     color: hsl(48, 100%, 67%);
+}
+
+.machine-status-reboot_in_progress,
+.machine-status-wait_for_launch {
+    color: hsl(217, 71%, 53%);
+}
+
+.machine-status-restoring_state,
+.machine-status-saving_state {
+    color: hsl(204, 86%, 53%);
 }
 
 .machine-status-powering_down,

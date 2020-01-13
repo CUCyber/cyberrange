@@ -17,7 +17,7 @@
             <label class="label">Flag</label>
             <div id="form-field" class="field is-grouped" style="align-items: center;">
               <p id="flag-input" class="control is-expanded has-icons-right">
-                <input id="flag" name="flag" class="input" type="text" />
+                <input id="Flag" name="Flag" class="input" type="text" />
                 <span class="icon is-small is-right">
                 <i class="circle-loader"></i>
                 <i id="correct" class="fas fa-check"></i>
@@ -43,8 +43,17 @@
             {{ .Name }}
           </p>
           <div class="card-header-icon" style="cursor: default;">
+            {{ if and (ne .Status "up") (ne .Status "down") }}
             <span class="icon">
-            <i class="fas fa-circle machine-status-{{ .Status }}"></i>
+              <img src="/static/images/loader.svg" class="machine-status-spinner"/>
+            </span>
+            {{ else }}
+            <span class="icon">
+              <img src="/static/images/loader.svg" class="machine-status-spinner machine-status-spinner-hidden"/>
+            </span>
+            {{ end }}
+            <span class="icon">
+              <i class="fas fa-circle machine-status-{{ .Status }}"></i>
             </span>
           </div>
         </header>

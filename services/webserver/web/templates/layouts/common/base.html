@@ -7,9 +7,11 @@
     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css'>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bulma-extensions@6.2.7/bulma-timeline/dist/css/bulma-timeline.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
     <link rel='stylesheet' href='/static/css/main.css'>
     <link rel='stylesheet' href='/static/css/cards.css'>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   </head>
   <body>
     {{ template "navbar" . }}
@@ -19,15 +21,16 @@
         {{ template "content" . }}
       </div>
     </div>
-    <div id="notif-holder" />
-    <script src="/static/js/sidebar.js"></script>
-    <script src="/static/js/hamburger.js"></script>
-    <script src="/static/js/notification.js"></script>
-    <script src="/static/js/table-filter.js"></script>
-    <script src="/static/js/table-update.js"></script>
+    <script src="/static/js/config.js"></script>
+    <script src="/static/js/form.js"></script>
+    <script src="/static/js/owns-form.js"></script>
     <script src="/static/js/flag-form.js"></script>
-    <script src="/static/js/machine-form.js"></script>
+    <script src="/static/js/hamburger.js"></script>
     <script src="/static/js/machine-action.js"></script>
+    <script src="/static/js/machine-form.js"></script>
+    <script src="/static/js/machine-update.js"></script>
+    <script src="/static/js/progress.js"></script>
+    <script src="/static/js/sidebar.js"></script>
     <script src='https://use.fontawesome.com/releases/v5.0.0/js/all.js'></script>
   </body>
 </html>

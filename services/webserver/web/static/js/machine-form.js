@@ -1,24 +1,94 @@
-$("#machine-form").submit(function (e) {
+$("#machine-creation-form").submit(function (e) {
   e.preventDefault();
   e.stopPropagation();
 
-  data = $(this).serialize();
+  form = $(this).FormToJSON();
+  form["Points"] = Number(form["Points"]);
 
-  spawnNotification("success", "Machine Creation Request Sent.");
+  var ws = new WebSocket("ws://" + Server + "/admin/create/machine");
 
-  $.ajax({
-    type: "POST",
-    url: "/admin",
-    data: data,
-    timeout: 10 * 1000,
-    success: function (response) {
-      setTimeout(function () {
-        if (response == "success") {
-          spawnNotification("success", "Machine Deployment Started.");
-        } else {
-          spawnNotification("danger", response);
-        }
-      }, (.5 * 1000));
-    },
-  });
+  ws.onopen = function (event) {
+    ws.send(JSON.stringify(form));
+    spawnProgressBar();
+  };
+
+  ws.onerror = function (event) {
+    toastr.error('An error occurred. Please reload the page.', 'Machine Form');
+    killProgressBar();
+  };
+
+  ws.onmessage = function (event) {
+    const json = (function (resp) {
+      try {
+        return JSON.parse(resp);
+      } catch (err) {
+        return false;
+      }
+    })(event.data);
+
+    if (!json) {
+      toastr.error('Action Request Failed.', 'Machine Form');
+      return;
+    }
+
+    updateProgressBar(json.Percent);
+    switch (json.Type) {
+    case "info":
+        toastr.info(json.Data, 'Machine Creation Form');
+        break;
+    case "success":
+        toastr.success(json.Data, 'Machine Creation Form');
+        break;
+    case "error":
+        toastr.error(json.Data, 'Machine Creation Form');
+        break;
+    }
+  };
+})
+
+$("#machine-deletion-form").submit(function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  form = $(this).FormToJSON();
+
+  var ws = new WebSocket("ws://" + Server + "/admin/delete/machine");
+
+  ws.onopen = function (event) {
+    ws.send(JSON.stringify(form));
+    spawnProgressBar();
+  };
+
+  ws.onerror = function (event) {
+    toastr.error('An error occurred. Please reload the page.', 'Machine Form');
+    killProgressBar();
+  };
+
+  ws.onmessage = function (event) {
+    const json = (function (resp) {
+      try {
+        return JSON.parse(resp);
+      } catch (err) {
+        return false;
+      }
+    })(event.data);
+
+    if (!json) {
+      toastr.error('Action Request Failed.', 'Machine Form');
+      return;
+    }
+
+    updateProgressBar(json.Percent);
+    switch (json.Type) {
+    case "info":
+        toastr.info(json.Data, 'Machine Deletion Form');
+        break;
+    case "success":
+        toastr.success(json.Data, 'Machine Deletion Form');
+        break;
+    case "error":
+        toastr.error(json.Data, 'Machine Deletion Form');
+        break;
+    }
+  };
 })
