@@ -75,8 +75,8 @@ func createUserSession(data *LoginFormData, w http.ResponseWriter, req *http.Req
 }
 
 func InitializeSessions() {
-	authKey, _ := []byte("ABCDABCDABCDABCD"), securecookie.GenerateRandomKey(64)
-	encryptionKey, _ := []byte("ABCDABCDABCDABCD"), securecookie.GenerateRandomKey(32)
+	authKey := securecookie.GenerateRandomKey(64)
+	encryptionKey := securecookie.GenerateRandomKey(32)
 
 	store = sessions.NewCookieStore(
 		authKey,
@@ -84,7 +84,7 @@ func InitializeSessions() {
 	)
 
 	store.Options = &sessions.Options{
-		MaxAge:   60 * 15,
+		MaxAge:   60 * 60,
 		HttpOnly: true,
 	}
 

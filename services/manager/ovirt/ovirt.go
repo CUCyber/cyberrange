@@ -203,12 +203,41 @@ func SnapshotMachine(MachineName string) error {
 
 	snapshotsService := vmsService.VmService(vmId).SnapshotsService()
 
+	snapResponse, err := snapshotsService.List().Send()
+	if err != nil {
+		return err
+	}
+
+	snapshots, ok := snapResponse.Snapshots()
+	if !ok {
+		return ErrGetAttribute
+	}
+
+	if len(snapshots.Slice()) > 1 {
+		for _, snapshot := range snapshots.Slice() {
+			snapName, ok := snapshot.Description()
+			if ok && snapName == "Initial" {
+				return nil
+			}
+		}
+	}
+
 	build, err := ovirtsdk4.NewSnapshotBuilder().Description("Initial").Build()
 	if err != nil {
 		return err
 	}
 
 	_, err = snapshotsService.Add().Snapshot(build).Send()
+	if err != nil {
+		return err
+	}
+
+	err = WaitForState(vmId, ovirtsdk4.VMSTATUS_PAUSED)
+	if err != nil {
+		return err
+	}
+
+	err = WaitForState(vmId, ovirtsdk4.VMSTATUS_UP)
 	if err != nil {
 		return err
 	}
@@ -281,7 +310,7 @@ func RevertMachine(MachineName string) error {
 			return err
 		}
 
-		_, err := snapService.Restore().Async(false).RestoreMemory(false).Send()
+		_, err := snapService.Restore().Async(false).RestoreMemory(true).Send()
 		if err != nil {
 			return err
 		}

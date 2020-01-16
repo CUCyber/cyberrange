@@ -87,7 +87,7 @@ func StopMachine(machine *db.Machine) error {
 }
 
 func SnapshotMachine(machine *db.Machine) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
 	req := &proto.Machine{Name: machine.Name}
