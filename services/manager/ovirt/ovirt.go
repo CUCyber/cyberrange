@@ -135,6 +135,54 @@ func GetVMServiceByName(MachineName string) (*ovirtsdk4.VmService, error) {
 	return vmsService.VmService(vmId), nil
 }
 
+func WaitForSnapshotByName(MachineName string) error {
+	vmService, err := GetVMServiceByName(MachineName)
+	if err != nil {
+		return err
+	}
+
+	snapshotsService := vmService.SnapshotsService()
+
+	for {
+		snapResponse, err := snapshotsService.List().Send()
+		if err != nil {
+			return err
+		}
+
+		snapshots, ok := snapResponse.Snapshots()
+		if !ok {
+			return ErrGetAttribute
+		}
+
+		if len(snapshots.Slice()) <= 1 {
+			continue
+		}
+
+		for _, snapshot := range snapshots.Slice() {
+			snapName, ok := snapshot.Description()
+			if ok && snapName == "Initial" {
+				vmResp, err := vmService.Get().Send()
+				if err != nil {
+					return err
+				}
+
+				vm, ok := vmResp.Vm()
+				if !ok {
+					continue
+				}
+
+				if status, ok := vm.Status(); ok {
+					if status == ovirtsdk4.VMSTATUS_UP {
+						return nil
+					}
+				}
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+}
+
 func StartMachine(MachineName string) error {
 	vmService, err := GetVMServiceByName(MachineName)
 	if err != nil {
@@ -232,12 +280,7 @@ func SnapshotMachine(MachineName string) error {
 		return err
 	}
 
-	err = WaitForState(vmId, ovirtsdk4.VMSTATUS_PAUSED)
-	if err != nil {
-		return err
-	}
-
-	err = WaitForState(vmId, ovirtsdk4.VMSTATUS_UP)
+	err = WaitForSnapshotByName(MachineName)
 	if err != nil {
 		return err
 	}
