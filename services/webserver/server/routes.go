@@ -202,6 +202,17 @@ func (c *controller) start(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		dbMachine, err := db.FindOrCreateMachine(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		}
+
+		if dbMachine.Status == "up" {
+			WriteJSONError(conn, db.ErrMachineStarted)
+			return
+		}
+
 		err = StartMachine(&machine)
 		if err != nil {
 			WriteJSONError(conn, err)
@@ -234,6 +245,17 @@ func (c *controller) stop(w http.ResponseWriter, req *http.Request) {
 			return
 		} else if exists == false {
 			WriteJSONError(conn, db.ErrMachineNotFound)
+			return
+		}
+
+		dbMachine, err := db.FindOrCreateMachine(&machine)
+		if err != nil {
+			WriteJSONError(conn, err)
+			return
+		}
+
+		if dbMachine.Status == "down" {
+			WriteJSONError(conn, db.ErrMachineStopped)
 			return
 		}
 

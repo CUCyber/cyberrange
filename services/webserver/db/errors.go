@@ -3,6 +3,8 @@ package db
 import "errors"
 
 var (
+	ErrMachineStarted  = errors.New("cyberrange: machine is already active")
+	ErrMachineStopped  = errors.New("cyberrange: machine is already inactive")
 	ErrUserNotFound    = errors.New("cyberrange: user not found")
 	ErrMachineNotFound = errors.New("cyberrange: machine not found")
 	ErrMachineExists   = errors.New("cyberrange: machine already exists")
