@@ -26,6 +26,7 @@ var routes = []struct {
 	{"/stop", c.requiresLogin(c.stop)},
 	{"/revert", c.requiresLogin(c.revert)},
 	{"/list", c.requiresLogin(c.list)},
+	{"/chat", c.requiresLogin(c.chat)},
 	{"/scoreboard", c.requiresLogin(c.scoreboard)},
 	{"/admin/owns", c.requiresAdmin(c.admin_owns)},
 	{"/admin/create", c.requiresAdmin(c.admin_create)},
@@ -175,6 +176,37 @@ func (c *controller) list(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}()
+}
+
+func (c *controller) chat(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
+	path := strings.TrimPrefix(req.URL.Path, "/chat")
+
+	switch path {
+	case "/ws":
+		conn, err := Websockify(w, req)
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer conn.Close()
+
+			ChatHandler(&conn, &user)
+		}()
+	default:
+		data := &TemplateDataContext{
+			User: &user,
+		}
+		serveTemplate(w, "chat.html", data, homeTemplate)
+	}
 }
 
 func (c *controller) start(w http.ResponseWriter, req *http.Request) {

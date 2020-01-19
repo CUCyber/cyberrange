@@ -22,7 +22,7 @@ function copyMachineData(machine, newMachine) {
 }
 
 function updateMachineList() {
-  var ws = new WebSocket("ws://" + Server + "/list");
+  var ws = new WebSocket("ws://" + document.location.host + "/list");
 
   ws.onerror = function (event) {
     toastr.error('An error occurred. Please reload the page.', 'Machine Update');

@@ -210,3 +210,28 @@ table td {
 #toast-container > div:hover {
     opacity: 0.8 !important;
 }
+
+/* Chat */
+.chatbox {
+  margin: 0 !important;
+}
+
+.chat .chat-history {
+  padding: 20px 20px 20px;
+  overflow-y: scroll;
+  height: 575px;
+}
+
+.chat .chat-history .message {
+  padding: 5px 20px;
+  font-size: 16px;
+  border-radius: 7px;
+  width: 90%;
+  position: relative;
+  margin-bottom: 0px;
+  background-color: #fff;
+}
+
+.chat .chat-message {
+  padding: 30px;
+}

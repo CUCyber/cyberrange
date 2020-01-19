@@ -27,6 +27,9 @@ func main() {
 	server.InitializeSessions()
 	server.InstantiateTemplates()
 
+	server.InitializeChatHub()
+	defer server.CloseChatHub()
+
 	go server.MonitorManager()
 	go server.UpdateMachines()
 

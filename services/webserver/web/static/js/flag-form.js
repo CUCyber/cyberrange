@@ -10,7 +10,7 @@ $("#flag-form").submit(function (e) {
   form = $(this).FormToJSON();
   form["Name"] = $('.form-title').text()
 
-  var ws = new WebSocket("ws://" + Server + "/machines/flag");
+  var ws = new WebSocket("ws://" + document.location.host + "/machines/flag");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));

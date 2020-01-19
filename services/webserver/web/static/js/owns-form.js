@@ -4,7 +4,7 @@ $("#userown-creation-form").submit(function (e) {
 
   form = $(this).FormToJSON();
 
-  var ws = new WebSocket("ws://" + Server + "/admin/owns/create_user");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/owns/create_user");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));
@@ -51,7 +51,7 @@ $("#rootown-creation-form").submit(function (e) {
 
   form = $(this).FormToJSON();
 
-  var ws = new WebSocket("ws://" + Server + "/admin/owns/create_root");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/owns/create_root");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));
@@ -98,7 +98,7 @@ $("#userown-deletion-form").submit(function (e) {
 
   form = $(this).FormToJSON();
 
-  var ws = new WebSocket("ws://" + Server + "/admin/owns/delete_user");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/owns/delete_user");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));
@@ -145,7 +145,7 @@ $("#rootown-deletion-form").submit(function (e) {
 
   form = $(this).FormToJSON();
 
-  var ws = new WebSocket("ws://" + Server + "/admin/owns/delete_root");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/owns/delete_root");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));

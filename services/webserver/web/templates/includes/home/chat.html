@@ -1,0 +1,36 @@
+{{define "content"}}
+<div class="container column is-12">
+  <div class="section">
+    <div class="card">
+      <div class="card-header">
+        <p class="card-header-title">
+          Introduction
+        </p>
+      </div>
+      <div class="card-content">
+        <div id="content" class="content">
+        <div class="container ">
+            <div class="chat">
+              <div class="chat-history">
+                <ul class="chatbox"></ul>
+              </div>
+              <div class="chat-message ">
+                <div class="field is-grouped">
+                  <p class="control is-expanded">
+                    <input id="message-to-send" class="input" type="text" placeholder="Chat here">
+                  </p>
+                  <p class="control">
+                    <a id="send-button" class="button is-info">
+                      Send
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

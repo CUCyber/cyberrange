@@ -5,7 +5,7 @@ $("#machine-creation-form").submit(function (e) {
   form = $(this).FormToJSON();
   form["Points"] = Number(form["Points"]);
 
-  var ws = new WebSocket("ws://" + Server + "/admin/create/machine");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/create/machine");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));
@@ -52,7 +52,7 @@ $("#machine-deletion-form").submit(function (e) {
 
   form = $(this).FormToJSON();
 
-  var ws = new WebSocket("ws://" + Server + "/admin/delete/machine");
+  var ws = new WebSocket("ws://" + document.location.host + "/admin/delete/machine");
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify(form));

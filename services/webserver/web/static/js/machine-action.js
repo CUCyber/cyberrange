@@ -1,7 +1,7 @@
 let actions = $('#machines').find("div.card footer a")
 
 function actionRequest(action, action_type) {
-  var ws = new WebSocket("ws://" + Server + "/" + action_type);
+  var ws = new WebSocket("ws://" + document.location.host + "/" + action_type);
 
   ws.onopen = function (event) {
     ws.send(JSON.stringify({"Name": action.dataset.name}));
