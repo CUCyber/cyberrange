@@ -19,6 +19,8 @@ var (
 	ErrNoMachinePath      = errors.New("cyberrange: no machine playbook path")
 	ErrNoMachineSetup     = errors.New("cyberrange: no machine playbook setup")
 	ErrNoMachineProvision = errors.New("cyberrange: no machine playbook provision")
+	ErrSetupFailed        = errors.New("cyberrange: machine setup failed, review ansible scripts")
+	ErrProvisionFailed    = errors.New("cyberrange: machine provision failed, review ansible scripts")
 )
 
 func (s *server) CheckCreate(ctx context.Context, req *proto.Machine) (*proto.Response, error) {
@@ -57,12 +59,12 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 
 	err := prov_cmd.Start()
 	if err != nil {
-		return &proto.Response{Result: false}, err
+		return &proto.Response{Result: false}, ErrProvisionFailed
 	}
 
 	err = prov_cmd.Wait()
 	if err != nil {
-		return &proto.Response{Result: false}, err
+		return &proto.Response{Result: false}, ErrProvisionFailed
 	}
 
 	ip, err := ovirt.WaitForIPByName(MachineName)
@@ -80,12 +82,12 @@ func (s *server) Create(ctx context.Context, req *proto.Machine) (*proto.Respons
 
 	err = setup_cmd.Start()
 	if err != nil {
-		return &proto.Response{Result: false}, err
+		return &proto.Response{Result: false}, ErrSetupFailed
 	}
 
 	err = setup_cmd.Wait()
 	if err != nil {
-		return &proto.Response{Result: false}, err
+		return &proto.Response{Result: false}, ErrSetupFailed
 	}
 
 	return &proto.Response{Result: true}, nil
