@@ -65,12 +65,9 @@
 }
 
 .machine-address {
+    height: 2rem;
     font-size: 1rem;
     padding-bottom: .5rem;
-}
-
-.machine-address.empty {
-    padding-bottom: 2rem;
 }
 
 .own-container {
