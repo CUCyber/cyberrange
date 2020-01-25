@@ -30,6 +30,9 @@ func main() {
 	server.InitializeChatHub()
 	defer server.CloseChatHub()
 
+	server.InitializeActionList()
+	defer server.ClearActionList()
+
 	go server.MonitorManager()
 	go server.UpdateMachines()
 

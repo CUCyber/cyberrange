@@ -256,6 +256,14 @@ func (c *controller) start(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *controller) stop(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
 	conn, err := Websockify(w, req)
 	if err != nil {
 		return
@@ -291,17 +299,33 @@ func (c *controller) stop(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = StopMachine(&machine)
+		err = al.CreateAction(dbMachine, Stop)
 		if err != nil {
 			WriteJSONError(conn, err)
 			return
 		}
 
 		WriteJSONSuccess(conn, "Stop Machine Request Initiated.")
+
+		CreateChatBroadcast(
+			fmt.Sprintf(
+				"%s requested to shutdown %s. "+
+					"Type \"/cancel %s\" to cancel the shutdown.",
+				user.User.Username, dbMachine.Name, dbMachine.Name,
+			),
+		)
 	}()
 }
 
 func (c *controller) revert(w http.ResponseWriter, req *http.Request) {
+	session, err := store.Get(req, "auth-cookie")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := getUser(session)
+
 	conn, err := Websockify(w, req)
 	if err != nil {
 		return
@@ -328,13 +352,21 @@ func (c *controller) revert(w http.ResponseWriter, req *http.Request) {
 
 		WriteJSONInfo(conn, "Revert Machine Request Initiated.", 20)
 
-		err = RevertMachine(&machine)
+		err = al.CreateAction(&machine, Revert)
 		if err != nil {
 			WriteJSONError(conn, err)
 			return
 		}
 
 		WriteJSONSuccess(conn, "Revert Machine Request Completed.")
+
+		CreateChatBroadcast(
+			fmt.Sprintf(
+				"%s requested a revert on %s. "+
+					"Type \"/cancel %s\" to cancel the revert.",
+				user.User.Username, machine.Name, machine.Name,
+			),
+		)
 	}()
 }
 
@@ -780,8 +812,10 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		data, err := LoginForm(req)
-		if err != nil {
+		username := req.PostFormValue("username")
+		password := req.PostFormValue("password")
+
+		if username == "" || password == "" {
 			serveTemplate(w, "index.html",
 				struct{ Error string }{
 					"Invalid form data.",
@@ -791,7 +825,7 @@ func (c *controller) login(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = createUserSession(data, w, req)
+		err = createUserSession(username, password, w, req)
 		if err != nil {
 			ldaperr := LDAPError(err)
 			if ldaperr != "" {
