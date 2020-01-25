@@ -10,11 +10,13 @@ function disableChat() {
 }
 
 function renderError(errorMessage) {
-  var messageElement = document.createElement('div');
-  messageElement.className = "message";
-  messageElement.innerText = errorMessage;
-  $('.chat-history').find('ul').append(messageElement);
-  toastr.error(errorMessage, 'Chat');
+  if ($("#chat").length){
+    var messageElement = document.createElement('div');
+    messageElement.className = "message";
+    messageElement.innerText = errorMessage;
+    $('.chat-history').find('ul').append(messageElement);
+    toastr.error(errorMessage, 'Chat');
+  }
 }
 
 function renderGlobal(message){
