@@ -45,7 +45,7 @@ func CheckCreateMachine(machine *db.Machine) error {
 }
 
 func CreateMachine(machine *db.Machine) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Hour)
 	defer cancel()
 
 	req := &proto.Machine{Name: machine.Name}
