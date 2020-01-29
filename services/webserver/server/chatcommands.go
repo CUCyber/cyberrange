@@ -1,12 +1,12 @@
 package server
 
 import (
-    "fmt"
-    "time"
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
-    "github.com/cucyber/cyberrange/services/webserver/db"
+	"github.com/cucyber/cyberrange/services/webserver/db"
 )
 
 type Command struct {

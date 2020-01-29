@@ -25,6 +25,8 @@ func GetUsers() (*[]User, error) {
 	var users []User
 
 	_, err := db.Select("*").From("users").
+		OrderDesc("points").
+		OrderDesc("root_owns").
 		Load(&users)
 	if err != nil {
 		return nil, err
