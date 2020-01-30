@@ -384,7 +384,7 @@ func ListMachines() (*proto.MachineList, error) {
 
 	vmsService := ovirt.SystemService().VmsService()
 
-	vmsResponse, err := vmsService.List().Send()
+	vmsResponse, err := vmsService.List().Search(prefix).Send()
 	if err != nil {
 		return &proto.MachineList{Machines: nil}, err
 	}
